@@ -13,10 +13,10 @@
 将整个仓库放入 Codex 的 Skills 目录，并保留目录名 `pm-prototype-workbench`。使用默认个人目录时，可以运行：
 
 ```sh
-gh repo clone jiangxiaolin1995/pm-prototype-workbench "$HOME/.codex/skills/pm-prototype-workbench"
+git clone https://github.com/jiangxiaolin1995/pm-prototype-workbench.git "$HOME/.codex/skills/pm-prototype-workbench"
 ```
 
-这是私有仓库，需要已登录且有仓库访问权限的 GitHub 账号。如果目标目录已经存在，请先保留现有改动，不要直接覆盖。本机已安装的 Skill 无需重复安装。自定义 Skills 目录时，将目标路径替换为实际目录。
+这是公有仓库，无需登录 GitHub 即可查看和克隆。如果目标目录已经存在，请先保留现有改动，不要直接覆盖。本机已安装的 Skill 无需重复安装。自定义 Skills 目录时，将目标路径替换为实际目录。
 
 ## 使用
 
