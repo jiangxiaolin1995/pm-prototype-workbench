@@ -26,25 +26,37 @@ async function main(){
  }
  try{
   const r=boot(html);
-  assert.deepEqual([...r.$('#canvas-zoom').options].map(o=>o.value),['1','0.75','0.5','fit']);
-  assert.equal(r.$('#canvas-zoom').value,'1');
+  assert.deepEqual([...r.$('#canvas-zoom').options].map(o=>o.value),['1','0.98','0.87','0.76','0.65','0.5','fit']);
+  assert.equal(r.$('#canvas-zoom').value,'fit');
   r.click('#new-channel');r.fill('#channel-name-input','正在填写的表单');r.click('#note-4 [data-note-edit]');r.fill('#note-body','未保存的说明草稿');
   const input=r.$('#channel-name-input'),editor=r.$('#note-body');
-  for(const value of ['0.75','0.5','1']){
+  for(const value of ['1','0.98','0.87','0.76','0.65','0.5']){
    r.zoom(value);assert.equal(r.$('#prototype').style.zoom,value);assert.equal(r.$('#prototype').style.width,'390px');assert.equal(r.$('#prototype').style.height,'844px');
    assert.equal(r.$('#channel-name-input'),input);assert.equal(r.$('#note-body'),editor);assert.equal(input.value,'正在填写的表单');assert.equal(editor.value,'未保存的说明草稿');
-   const frame=r.$('[data-note-frame="4"]');assert.equal(parseFloat(frame.style.left),18);assert.equal(parseFloat(frame.style.top),38);assert.equal(parseFloat(frame.style.width),304);assert.equal(parseFloat(frame.style.height),64);
+   const frame=r.$('[data-note-frame="4"]');for(const [key,expected] of Object.entries({left:18,top:38,width:304,height:64}))assert.ok(Math.abs(parseFloat(frame.style[key])-expected)<1e-7,'Annotation '+key+' at '+value);
   }
   checks.push('zoom_preserves_business_and_draft_dom_with_correct_annotation_coordinates');
-  r.click('#cancel-note');r.zoom('0.75');r.click('[data-page=tags]');assert.equal(r.$('#canvas-zoom').value,'1');r.zoom('0.5');r.click('[data-page=channels]');assert.equal(r.$('#canvas-zoom').value,'0.75');assert.equal(r.$('#channel-name-input').value,'正在填写的表单');r.click('#global-menu');r.click('[data-page=channels]');assert.equal(r.$('#canvas-zoom').value,'0.75');
+  r.click('#cancel-note');r.zoom('0.76');r.click('[data-page=tags]');assert.equal(r.$('#canvas-zoom').value,'fit');r.zoom('0.5');r.click('[data-page=channels]');assert.equal(r.$('#canvas-zoom').value,'0.76');assert.equal(r.$('#channel-name-input').value,'正在填写的表单');r.click('#global-menu');r.click('[data-page=channels]');assert.equal(r.$('#canvas-zoom').value,'0.76');
   checks.push('zoom_choice_is_per_page_and_survives_document_navigation');
-  Object.defineProperty(r.$('#prototype-viewport'),'clientWidth',{get:()=>300,configurable:true});r.$('#prototype-viewport').style.maxHeight='500px';
+  let viewportWidth=300,viewportHeight=500;
+  Object.defineProperty(r.$('#prototype-viewport'),'clientWidth',{get:()=>viewportWidth,configurable:true});
+  Object.defineProperty(r.$('#prototype-viewport'),'clientHeight',{get:()=>viewportHeight,configurable:true});
   r.zoom('fit');const fit=Number(r.$('#prototype').style.zoom);assert.ok(fit>0&&fit<=1);assert.ok(390*fit<=268&&844*fit<=468);assert.equal(r.$('#canvas-zoom').value,'fit');
   assert.equal(r.$('#channel-name-input').value,'正在填写的表单');checks.push('fit_preserves_ratio_and_fits_both_available_dimensions');
+  const fitInput=r.$('#channel-name-input');viewportWidth=1600;viewportHeight=1800;r.zoom('fit');
+  const enlarged=Number(r.$('#prototype').style.zoom);assert.ok(enlarged>2,'Large windows should enlarge the original canvas');assert.ok(390*enlarged<=1568&&844*enlarged<=1768);
+  assert.ok(1768-844*enlarged<1,'Fit should use the limiting dimension, not leave spare height');
+  assert.equal(r.$('#channel-name-input'),fitInput);assert.equal(r.$('#channel-name-input').value,'正在填写的表单');
+  viewportWidth=600;viewportHeight=800;r.w.dispatchEvent(new r.w.Event('resize'));await new Promise(resolve=>r.w.requestAnimationFrame(resolve));
+  const resized=Number(r.$('#prototype').style.zoom);assert.ok(resized<1&&resized<enlarged);assert.equal(r.$('#channel-name-input'),fitInput);
+  checks.push('fit_enlarges_on_large_windows_and_recalculates_on_resize_without_rebuilding_business');
   r.zoom('0.5');const exported=await r.export(),payload=parse(exported);assert.equal(payload.model.views.channels.canvasZoom,'0.5');
-  const viewer=boot(exported);assert.equal(viewer.$('#canvas-zoom').value,'0.5');viewer.zoom('0.75');assert.equal(viewer.$('#prototype').style.zoom,'0.75');assert.equal(viewer.d.querySelector('#pick-note,#export-html,#note-form'),null);assert.equal(viewer.$('#channel-name-input').value,'正在填写的表单');
+  const viewer=boot(exported);assert.equal(viewer.$('#canvas-zoom').value,'0.5');viewer.zoom('0.76');assert.equal(viewer.$('#prototype').style.zoom,'0.76');assert.equal(viewer.d.querySelector('#pick-note,#export-html,#note-form'),null);assert.equal(viewer.$('#channel-name-input').value,'正在填写的表单');
   checks.push('actual_readonly_export_keeps_zoom_controls_and_business_without_authoring');
-  const legacy=parse(html).model;legacy.views.channels.canvasZoom='invalid';const old=boot(html,legacy);assert.equal(old.$('#canvas-zoom').value,'1');assert.equal(old.$('#prototype').style.zoom,'1');checks.push('legacy_and_invalid_zoom_fall_back_to_original_size');
+  const legacy=parse(html).model;legacy.views.channels.canvasZoom='invalid';const old=boot(html,legacy);assert.equal(old.$('#canvas-zoom').value,'fit');
+  for(const value of ['1','0.98','0.87','0.76','0.65','0.5','fit']){legacy.views.channels.canvasZoom=value;const saved=boot(html,legacy);assert.equal(saved.$('#canvas-zoom').value,value);}
+  checks.push('missing_and_invalid_zoom_use_fit_while_explicit_legacy_choices_are_retained');
+  legacy.views.channels.canvasZoom='0.75';const migrated=boot(html,legacy);assert.equal(migrated.$('#canvas-zoom').value,'0.76');assert.equal(migrated.$('#prototype').style.zoom,'0.76');checks.push('legacy_75_percent_choice_maps_to_the_new_76_percent_step');
   for(const run of runs)assert.deepEqual(run.errors,[]);
   console.log(JSON.stringify({ok:true,checks,verificationOutput:null},null,2));
  }finally{runs.forEach(r=>r.w.close());}
