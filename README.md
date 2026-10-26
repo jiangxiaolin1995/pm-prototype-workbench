@@ -34,6 +34,12 @@ git clone https://github.com/jiangxiaolin1995/pm-prototype-workbench.git "$HOME/
 
 `assets/workbench.html` 是用于说明机制的示例模板，包含渠道和审核的演示业务。新建实际原型时，应根据用户需求替换示例内容；没有提供说明时应留空。转换已有 HTML 时保留源页面，不用示例替换原业务。
 
+## 画布与展示比例
+
+原型默认以设计尺寸显示，小窗口通过横向、纵向滚动查看。中间工具条支持 **100%、75%、50%、适应窗口**；缩放只作用于原型和标注，目录、工具和右侧说明保持原大小。选择「适应窗口」会根据可用宽高自动调整，内部列表仍可滚动。改变比例会保留业务输入、说明草稿和当前场景，各页面分别记住选择；只读导出也可调整查看比例。
+
+[H5 工作台示例](examples/h5-workbench.html) 使用 390 × 844 画布，包含列表、收藏、详情和输入交互。下载该 HTML 后可本地打开，默认说明为空，可自行选择位置填写；不依赖网络资源。
+
 ## 文件
 
 | 路径 | 用途 |
@@ -41,6 +47,7 @@ git clone https://github.com/jiangxiaolin1995/pm-prototype-workbench.git "$HOME/
 | [SKILL.md](SKILL.md) | Codex 执行约定与验证要求 |
 | [agents/openai.yaml](agents/openai.yaml) | Skill 名称、提示词和调用配置 |
 | [assets/workbench.html](assets/workbench.html) | 单文件交互模板 |
+| [examples/h5-workbench.html](examples/h5-workbench.html) | 可直接打开的 H5 缩放示例 |
 | [references/template-map.md](references/template-map.md) | 模板模型与修改入口 |
 | [references/existing-html.md](references/existing-html.md) | 已有 HTML 转换流程 |
 | [references/element-targeting.md](references/element-targeting.md) | 元素选择与稳定定位 |
@@ -67,6 +74,8 @@ node scripts/verify_global_menu.cjs
 node scripts/verify_elements.cjs
 node scripts/verify_inline_edit.cjs
 node scripts/verify_view_authoring.cjs
+node scripts/verify_canvas.cjs
+node scripts/verify_zoom.cjs
 ```
 
 已有 jsdom 时，也可通过 `--jsdom /实际路径/node_modules/jsdom` 指定。导出验证默认只在内存中检查，不生成或下载只读 HTML。脚本中的布局数据是测试桩，视觉和实际点击仍需在浏览器中检查。
