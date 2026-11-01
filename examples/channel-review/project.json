@@ -1,0 +1,518 @@
+{
+  "schemaVersion": 3,
+  "artifactId": "prototype-workbench-template",
+  "snapshotId": "template-v1",
+  "version": "v1.0",
+  "savedAt": "2026-10-16T00:28:25.056267+08:00",
+  "model": {
+    "activePage": "channels",
+    "data": {
+      "channels": [
+        {
+          "id": "CH-001",
+          "name": "首页精选",
+          "category": "题材",
+          "tags": [
+            "动作",
+            "冒险"
+          ],
+          "active": true
+        },
+        {
+          "id": "CH-002",
+          "name": "新作发现",
+          "category": "题材",
+          "tags": [
+            "科幻",
+            "悬疑"
+          ],
+          "active": true
+        },
+        {
+          "id": "CH-003",
+          "name": "轻松一刻",
+          "category": "题材",
+          "tags": [
+            "喜剧"
+          ],
+          "active": true
+        },
+        {
+          "id": "CH-004",
+          "name": "国产佳作",
+          "category": "地区",
+          "tags": [
+            "国产"
+          ],
+          "active": false
+        },
+        {
+          "id": "CH-005",
+          "name": "经典回看",
+          "category": "地区",
+          "tags": [
+            "欧美",
+            "日韩"
+          ],
+          "active": true
+        }
+      ],
+      "categories": {
+        "题材": [
+          {
+            "name": "动作",
+            "active": true
+          },
+          {
+            "name": "冒险",
+            "active": true
+          },
+          {
+            "name": "科幻",
+            "active": true
+          },
+          {
+            "name": "悬疑",
+            "active": true
+          },
+          {
+            "name": "喜剧",
+            "active": true
+          }
+        ],
+        "地区": [
+          {
+            "name": "国产",
+            "active": true
+          },
+          {
+            "name": "欧美",
+            "active": true
+          },
+          {
+            "name": "日韩",
+            "active": true
+          }
+        ],
+        "形式": [
+          {
+            "name": "电影",
+            "active": true
+          },
+          {
+            "name": "短片",
+            "active": true
+          },
+          {
+            "name": "剧集",
+            "active": true
+          }
+        ]
+      },
+      "comments": [
+        {
+          "id": "CM-001",
+          "author": "林间小鹿",
+          "resource": "夏日旅行记",
+          "text": "这一集的节奏很好，最后的转场还想再看一遍。",
+          "status": "pending"
+        },
+        {
+          "id": "CM-002",
+          "author": "今天看什么",
+          "resource": "城市的另一面",
+          "text": "画面很舒服，希望下一集可以多讲一点主角的背景。",
+          "status": "pending"
+        },
+        {
+          "id": "CM-003",
+          "author": "山风",
+          "resource": "夏日旅行记",
+          "text": "已收藏，周末接着看。",
+          "status": "approved"
+        }
+      ],
+      "words": [
+        {
+          "id": "WD-001",
+          "text": "加群返利",
+          "active": true
+        },
+        {
+          "id": "WD-002",
+          "text": "代刷流量",
+          "active": true
+        },
+        {
+          "id": "WD-003",
+          "text": "私信转账",
+          "active": false
+        }
+      ]
+    },
+    "views": {
+      "channels": {
+        "query": "",
+        "queryDraft": "",
+        "status": "",
+        "statusDraft": "",
+        "preview": "live",
+        "modal": null,
+        "savedForm": null,
+        "errors": {},
+        "newText": "",
+        "category": "题材",
+        "scroll": 0,
+        "notesScroll": 0,
+        "tableScroll": 0
+      },
+      "tags": {
+        "query": "",
+        "queryDraft": "",
+        "status": "",
+        "statusDraft": "",
+        "preview": "live",
+        "modal": null,
+        "savedForm": null,
+        "errors": {},
+        "newText": "",
+        "category": "题材",
+        "scroll": 0,
+        "notesScroll": 0,
+        "tableScroll": 0
+      },
+      "comments": {
+        "query": "",
+        "queryDraft": "",
+        "status": "",
+        "statusDraft": "",
+        "preview": "live",
+        "modal": null,
+        "savedForm": null,
+        "errors": {},
+        "newText": "",
+        "category": "题材",
+        "scroll": 0,
+        "notesScroll": 0,
+        "tableScroll": 0
+      },
+      "words": {
+        "query": "",
+        "queryDraft": "",
+        "status": "",
+        "statusDraft": "",
+        "preview": "live",
+        "modal": null,
+        "savedForm": null,
+        "errors": {},
+        "newText": "",
+        "category": "题材",
+        "scroll": 0,
+        "notesScroll": 0,
+        "tableScroll": 0
+      }
+    },
+    "drafts": {},
+    "notes": [
+      {
+        "id": 1,
+        "scene": "list",
+        "anchor": "filters",
+        "location": "渠道列表 / 筛选条件",
+        "body": "名称与状态一起筛选\n交互：输入渠道名称、选择状态，点击「查询」后更新列表；回车也可查询。\n注意：名称使用包含匹配，多个条件同时满足才显示。点击「重置」恢复全部渠道。",
+        "page": "channels",
+        "requirement": "channels"
+      },
+      {
+        "id": 2,
+        "scene": "list",
+        "anchor": "channel-tags",
+        "location": "渠道列表 / 已选标签",
+        "body": "标签要保留所属分类\n展示：一级分类与二级标签分开呈现，同一渠道的标签属于所选分类。\n交付：新增渠道、标签与启停状态会随 HTML 一起导出，重新打开后保留。",
+        "page": "channels",
+        "requirement": "channels"
+      },
+      {
+        "id": 3,
+        "scene": "list",
+        "anchor": "create-channel",
+        "location": "渠道列表 / 新建渠道按钮",
+        "body": "新建与编辑共用一套表单\n交互：点击「新建渠道」打开空白表单；点击行内「编辑」回显当前内容。\n注意：保存通过校验后更新列表；取消或按 Esc 关闭，不修改原记录。切换左侧页面会暂存未完成的表单。",
+        "page": "channels",
+        "requirement": "channels"
+      },
+      {
+        "id": 4,
+        "scene": "form",
+        "anchor": "channel-name",
+        "location": "渠道表单 / 渠道名称",
+        "body": "名称不能为空\n规则：去掉首尾空格后，名称必填，最多 20 个字符。\n验收：不填写直接保存，字段下方出现明确提示；原有列表保持不变。",
+        "page": "channels",
+        "requirement": "channels"
+      },
+      {
+        "id": 5,
+        "scene": "form",
+        "anchor": "channel-category",
+        "location": "渠道表单 / 分类与标签",
+        "body": "先选分类，再选择标签\n交互：选择一级分类后展示对应标签，至少选择一个二级标签。\n注意：更换一级分类会清空此前所选标签，避免把旧分类标签带入新分类。",
+        "page": "channels",
+        "requirement": "channels"
+      },
+      {
+        "id": 6,
+        "scene": "form",
+        "anchor": "save-channel",
+        "location": "渠道表单 / 保存按钮",
+        "body": "校验通过才保存\n规则：名称、一级分类和二级标签全部有效才能保存；失败时保留已填写内容。\n结果：成功后关闭弹窗并更新列表。这个示例不会写入真实业务系统。",
+        "page": "channels",
+        "requirement": "channels"
+      },
+      {
+        "id": 7,
+        "scene": "empty",
+        "anchor": "empty-result",
+        "location": "渠道列表 / 无搜索结果",
+        "body": "无结果时保留筛选条件\n展示：说明当前没有匹配的渠道，并提供「清空筛选」入口。\n交互：清空后显示全部渠道；原先的渠道数据不会被删除。",
+        "page": "channels",
+        "requirement": "channels"
+      },
+      {
+        "id": 8,
+        "requirement": "channels",
+        "page": "channels",
+        "scene": "error",
+        "anchor": "error-result",
+        "location": "渠道列表 / 失败时可重试，保留输入",
+        "body": "失败时可重试，保留输入\n展示：加载失败时显示明确提示和「重新加载」。\n交互：重试恢复演示数据，保留当前筛选；如无匹配结果，进入空结果状态。"
+      },
+      {
+        "id": 9,
+        "requirement": "channels",
+        "page": "channels",
+        "scene": "list",
+        "anchor": "name-column",
+        "location": "渠道列表 / 名称、标签和按钮可分别对应说明",
+        "body": "名称、标签和按钮可分别对应说明\n查看：使用中间的「定位说明」选择编号，页面会高亮对应位置，右侧显示同编号文字。\n说明在工作文件中编写，导出的预览只展示已保存内容。"
+      },
+      {
+        "id": 10,
+        "requirement": "channels",
+        "page": "channels",
+        "scene": "list",
+        "anchor": "list-page",
+        "location": "渠道列表 / 新建、切换与说明定位可以连续验证",
+        "body": "新建、切换与说明定位可以连续验证\n1. 新建一个渠道，保存后能在列表找到。\n2. 切到其他需求再返回，演示数据保留。\n3. 选择说明编号，原型切换到对应状态并高亮位置。\n4. 右侧始终展示已保存说明。"
+      },
+      {
+        "id": 11,
+        "requirement": "channels",
+        "page": "tags",
+        "scene": "list",
+        "anchor": "add-item",
+        "location": "标签配置 / 标签按一级分类维护",
+        "body": "标签按一级分类维护\n规则：先选择一级分类，再添加二级标签；名称去掉首尾空格，必填、最多 12 个字符。\n同一分类不允许同名标签；不同分类可同名。新增后可在渠道表单中选择。"
+      },
+      {
+        "id": 12,
+        "requirement": "channels",
+        "page": "tags",
+        "scene": "list",
+        "anchor": "tag-toggle-%E9%A2%98%E6%9D%90%7C%E5%8A%A8%E4%BD%9C",
+        "location": "标签配置 / 正在使用的标签不能停用",
+        "body": "正在使用的标签不能停用\n规则：标签被任一渠道引用时，点击「停用」会提示先移除引用，原状态保持不变。\n可停用未被引用的标签；停用后不再出现在渠道表单的可选项中。"
+      },
+      {
+        "id": 13,
+        "requirement": "channels",
+        "page": "tags",
+        "scene": "empty",
+        "anchor": "empty-result",
+        "location": "标签配置 / 空结果仍保留当前分类",
+        "body": "空结果仍保留当前分类\n展示：搜索没有结果时保留一级分类、关键词和新增入口。\n交互：「清空筛选」恢复当前分类下的全部标签。"
+      },
+      {
+        "id": 14,
+        "requirement": "channels",
+        "page": "tags",
+        "scene": "list",
+        "anchor": "category-tabs",
+        "location": "标签配置 / 分类联动与引用限制",
+        "body": "分类联动与引用限制\n添加一个新标签，在渠道表单中选择并保存。返回标签配置，引用数应增加，且该标签无法停用。\n切换需求后再返回，当前分类与未提交输入仍保留。"
+      },
+      {
+        "id": 15,
+        "requirement": "moderation",
+        "page": "comments",
+        "scene": "list",
+        "anchor": "filters",
+        "location": "审核列表 / 按评论、资源和状态筛选",
+        "body": "按评论、资源和状态筛选\n规则：关键词同时匹配评论内容与资源名称；再与审核状态取交集。\n输入后点击「查询」或按回车生效；「重置」恢复全部评论。"
+      },
+      {
+        "id": 16,
+        "requirement": "moderation",
+        "page": "comments",
+        "scene": "form",
+        "anchor": "review-content",
+        "location": "审核列表 / 在弹窗中看全内容后审核",
+        "body": "在弹窗中看全内容后审核\n展示：弹窗包含评论编号、所属资源、用户、完整评论和当前状态。\n交互：待审核评论可通过或驳回；已处理评论只展示详情。关闭弹窗不会更改审核状态。"
+      },
+      {
+        "id": 17,
+        "requirement": "moderation",
+        "page": "comments",
+        "scene": "form",
+        "anchor": "approve-review",
+        "location": "审核列表 / 审核结果即时回到列表",
+        "body": "审核结果即时回到列表\n规则：点击「通过」或「驳回」后关闭弹窗，更新该条评论。\n若当前筛选为「待审核」，已处理记录从结果中移出；全部审核完后显示空结果。"
+      },
+      {
+        "id": 18,
+        "requirement": "moderation",
+        "page": "comments",
+        "scene": "list",
+        "anchor": "comment-list",
+        "location": "审核列表 / 状态变化与导出一致",
+        "body": "状态变化与导出一致\n筛选待审核评论并处理一条，确认它不再出现在待审核列表中。\n切回全部状态可查看结果；导出 HTML 再打开，审核结果仍保留。本示例不会写入真实系统。"
+      },
+      {
+        "id": 19,
+        "requirement": "moderation",
+        "page": "words",
+        "scene": "list",
+        "anchor": "new-text",
+        "location": "违禁词配置 / 一次添加一个完整词条",
+        "body": "一次添加一个完整词条\n规则：一个文本框填写一个词条，去掉首尾空格，必填、最多 20 个字符；忽略英文字母大小写判重。\n输入按纯文本展示，特殊字符不会当作 HTML 执行。"
+      },
+      {
+        "id": 20,
+        "requirement": "moderation",
+        "page": "words",
+        "scene": "list",
+        "anchor": "word-toggle-WD-001",
+        "location": "违禁词配置 / 停用词条保留记录",
+        "body": "停用词条保留记录\n交互：点击「停用」更新状态，再次点击「启用」可恢复。\n注意：本页只演示词条维护，实际文本匹配和自动审核策略待业务确认。"
+      },
+      {
+        "id": 21,
+        "requirement": "moderation",
+        "page": "words",
+        "scene": "error",
+        "anchor": "error-result",
+        "location": "违禁词配置 / 错误状态不清空正在编辑的词条",
+        "body": "错误状态不清空正在编辑的词条\n展示：失败时保留筛选和未添加的词条，支持重试。\n导出时会保存当前演示状态；研发可切换顶部状态查看正常页面。"
+      },
+      {
+        "id": 22,
+        "requirement": "moderation",
+        "page": "words",
+        "scene": "list",
+        "anchor": "add-item",
+        "location": "违禁词配置 / 必填、重复、启停与说明定位",
+        "body": "必填、重复、启停与说明定位\n空输入不能添加；重复词条有明确提示。\n添加一个新词条并停用，切换需求再回来仍保留。作者可在工作文件里为词条补充说明；导出的预览中按编号定位。"
+      }
+    ],
+    "counters": {
+      "note": 23,
+      "channel": 6,
+      "word": 4
+    },
+    "updatedAt": "2026-10-16T00:28:25.056267+08:00",
+    "globalContent": "",
+    "workspaceView": "prototype"
+  },
+  "readOnly": false,
+  "projectTitle": "三栏工作台示例",
+  "navigation": {
+    "products": {
+      "example": {
+        "name": "示例产品"
+      }
+    },
+    "platforms": {
+      "cms": {
+        "name": "CMS"
+      }
+    },
+    "pageScopes": {
+      "channels": {
+        "product": "example",
+        "platform": "cms"
+      },
+      "tags": {
+        "product": "example",
+        "platform": "cms"
+      },
+      "comments": {
+        "product": "example",
+        "platform": "cms"
+      },
+      "words": {
+        "product": "example",
+        "platform": "cms"
+      }
+    }
+  },
+  "requirements": [
+    {
+      "id": "channels",
+      "name": "渠道管理",
+      "code": "REQ-01",
+      "scope": "维护渠道及其分类标签，覆盖筛选、新建、编辑和标签配置。",
+      "boundary": "范围不含排序、权限和真实数据接口。"
+    },
+    {
+      "id": "moderation",
+      "name": "评论审核",
+      "code": "REQ-02",
+      "scope": "查看与审核评论，维护违禁词。",
+      "boundary": "范围不含自动审核算法、申诉和批量处理。"
+    }
+  ],
+  "pages": {
+    "channels": {
+      "req": "channels",
+      "name": "渠道列表",
+      "intro": "管理内容分发渠道与展示标签",
+      "states": {
+        "list": "列表",
+        "form": "新建弹窗",
+        "empty": "空结果",
+        "error": "加载失败"
+      }
+    },
+    "tags": {
+      "req": "channels",
+      "name": "标签配置",
+      "intro": "维护一级分类下可选的二级标签",
+      "states": {
+        "list": "标签列表",
+        "empty": "空结果",
+        "error": "加载失败"
+      }
+    },
+    "comments": {
+      "req": "moderation",
+      "name": "审核列表",
+      "intro": "查看评论内容并作出审核决定",
+      "states": {
+        "list": "评论列表",
+        "form": "审核弹窗",
+        "empty": "空结果",
+        "error": "加载失败"
+      }
+    },
+    "words": {
+      "req": "moderation",
+      "name": "违禁词配置",
+      "intro": "维护用于拦截评论的词条",
+      "states": {
+        "list": "词条列表",
+        "empty": "空结果",
+        "error": "加载失败"
+      }
+    }
+  },
+  "runtimeVersion": "4.0"
+}

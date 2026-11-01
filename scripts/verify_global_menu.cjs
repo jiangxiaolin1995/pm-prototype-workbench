@@ -7,7 +7,7 @@ async function main() {
   const args = process.argv.slice(2), options = {};
   while (args.length) { const flag = args.shift(); assert.ok(['--jsdom','--output'].includes(flag)); options[flag] = args.shift(); assert.ok(options[flag]); }
   const {JSDOM, VirtualConsole} = require(options['--jsdom'] || require.resolve('jsdom', {paths:[process.cwd(),__dirname]}));
-  const html = fs.readFileSync(path.join(__dirname,'../assets/workbench.html'),'utf8');
+  const html = require('./fixture.cjs')();
   const parse = text => JSON.parse(text.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
   const seed = parse(html), runtimes = [], checks = [];
   const content = '整个项目的说明\n第二行 <标签> & </script><script>window.injected=true</script>';

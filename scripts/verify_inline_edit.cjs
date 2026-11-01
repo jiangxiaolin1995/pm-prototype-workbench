@@ -5,7 +5,7 @@ async function main(){
  const args=process.argv.slice(2);let modulePath;
  if(args.length){assert.equal(args.shift(),'--jsdom');modulePath=args.shift();assert.equal(args.length,0);}
  const {JSDOM,VirtualConsole}=require(modulePath||require.resolve('jsdom',{paths:[process.cwd(),__dirname]}));
- const html=fs.readFileSync(path.join(__dirname,'../assets/workbench.html'),'utf8');
+ const html=require('./fixture.cjs')();
  const parse=s=>JSON.parse(s.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
  const runs=[],checks=[];
  function boot(text,cached){

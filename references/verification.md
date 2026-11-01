@@ -1,0 +1,75 @@
+# 验证实际产物与模板
+
+## 实际交付 HTML
+
+```sh
+node <skill-dir>/scripts/verify_workbench.cjs "/实际产物.html" --jsdom "/已有路径/node_modules/jsdom"
+```
+
+这个入口读取传入文件，运行它自己的脚本，操作其实际目录、选位置、原位编辑、保存副本和只读导出按钮。没有用渠道 fixture 替换业务，没有修改源文件；导出 Blob 在内存捕获和重开。
+
+检查目录与文件页面配置、产品端归属、各页可见元素拾取、保存说明不重建业务 DOM、隐藏框后定位、文档往返保留业务 data/view、三份纯文字、真实工作副本及只读边界。原文件存在说明草稿或缓存冲突时保留它们，检查交付导出被阻止，并报告只读交付未验证。只读输入文件仅检查查看边界，不尝试写入。
+
+报告包含实际路径、文件 SHA-256、检查、跳过项和局限；不把 skipped 当成通过。运行时错误、目录错配、标注失败或实际导出失效都返回非零退出码。`verify_artifact_validator.cjs` 用独立业务 HTML 和故意损坏的文件检验该入口，不能通过仅检查模板来绕过。
+
+## 业务场景
+
+通用检查不推断业务规则。可给 `--scenario /场景.json`，操作的仍是目标文件自身控件：
+
+```json
+[
+  {
+    "page": "实际页面ID",
+    "actions": [
+      {"click": "#打开表单"},
+      {"selector": "#业务输入", "value": "验证输入", "event": "input"}
+    ],
+    "expect": [
+      {"selector": "#业务输入", "value": "验证输入"}
+    ]
+  }
+]
+```
+
+actions 支持 click 或 selector/value/event；expect 支持 value、包含 text、attribute/equals。场景来自已确认需求与实际页面，不拿其他产品的规则套用。需要条件分支、网络或特殊宿主能力时另写该业务的定向验证，报告其实际范围。
+
+## 模板／fixture 回归
+
+这些检查用于修改工作台能力，不等于检查任意交付文件。旧脚本的断言继续保留，输入改为当前通用模板加独立渠道／审核示例实时组装：
+
+| 脚本 | 范围 |
+| --- | --- |
+| verify_prd.cjs | 三个文字入口、迁移、特殊字符、工作副本／只读／PRD |
+| verify_scopes.cjs / verify_product_menu.cjs | 多产品多端、同名页隔离、产品二级菜单与旧正文 |
+| verify_global_menu.cjs | 全局正文与业务状态往返 |
+| verify_view_authoring.cjs / verify_inline_edit.cjs | 单次拾取、原位编辑、不重建业务 DOM、草稿 |
+| verify_elements.cjs | 未预设锚点元素、禁用控件、SVG、动态记录、失效目标 |
+| verify_canvas.cjs / verify_zoom.cjs | 画布和逐页比例状态、坐标换算、导出 |
+| verify_fit_stability.cjs | 自然高度受 CSS zoom 舍入影响时仍收敛，内容／窗口变化继续适配，保留业务输入 |
+| verify_export.cjs | 渠道／审核 fixture 的详细导出回归，使用该示例的页面和控件 |
+| verify_revision.cjs | 同文件更新与浏览器编辑合并／冲突 |
+| verify_init.py | 干净初始化、明确文字带入、不覆盖原文件 |
+| verify_artifact_validator.cjs | 通用验证入口的正例与损坏产物反例 |
+
+例如生成渠道 fixture 后交给旧的导出回归：
+
+```sh
+python3 <skill-dir>/scripts/build_example.py channel-review --output "/隔离目录/channel-review.html"
+node <skill-dir>/scripts/verify_export.cjs "/隔离目录/channel-review.html" --jsdom "/已有路径/node_modules/jsdom"
+```
+
+其他 .cjs 回归按需执行，可传 --jsdom。JSDOM 仅用于验证，HTML 本身不需要 Node.js 或依赖。没有说明是合法状态；验证说明只能存在于隔离内存或验证副本。
+
+## 真实浏览器
+
+用隔离生成的工作 HTML 检查真实运行界面。file URL 受限时只暴露相关验证目录的回环服务，记录这是 HTTP 验收，不声称已经测试用户的本地文件或缓存。
+
+- 走通本次主要业务路径：输入、筛选、弹窗、内部滚动、目录往返和状态恢复。新增／编辑说明后继续业务，确认节点和焦点没有被重建。
+- 元素拾取检查实际指针命中，尤其禁用按钮、pointer-events:none 图标、SVG 子元素、父子选择。iframe/Shadow DOM 另验根内事件与定位，Canvas 内部像素不冒充 HTML 元素。
+- 框、编号、说明三处定位；隐藏框后仅显示当前框；弹窗入口数量和逐层定位不丢输入。
+- 文字默认空白或为明确提供内容，长文本自动增高、原位编辑、纯文字转义。业务和文档间往返保留草稿。
+- 涉及布局时测 2560×1600、1440×900、1366×600、960px 断点两侧、390×844、320×568。预览外层铺满中栏，桌面两侧等宽；设计画布等比，固定比例可滚动到边界，自适应大屏可放大。切换 100/90/80/70/60/50/自适应不变外层尺寸、不重建输入。
+- 自适应还需检查无固定高度的内容页：在 1280×720 等高度受限窗口连续观察尺寸反馈，静止后比例保持不变，不来回闪动；再改变窗口与业务内容高度，确认适配仍生效。只测固定 390×844 画布或单帧截图不够。
+- 导出测试拦截实际下载，在内存或明确临时验证目录重开；确认只读文字和业务操作边界。测试完成回到工作文件，不提供测试只读页为交付物。
+
+几何桩、CSS 文本检查和脚本通过不证明上述视觉结果。结束时关闭本次 TaskSpace／临时服务，记录实际覆盖与未验证项；不扩大为后端或真实设备验收。

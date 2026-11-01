@@ -1,7 +1,7 @@
 interface:
   display_name: "PRD 与三栏原型工作台"
   short_description: "纯文字需求说明与三栏原型，任意可见元素可标注，手动保存或只读交付"
-  default_prompt: "使用 $pm-prototype-workbench 生成或转换成 PRD 三栏工作台，保留原型交互和已有内容，左侧需求说明只含全局描述、上线后数据需求、埋点说明，全部只写文字，可选任意可见业务元素填写逻辑，新增正文留空，不自动补写业务逻辑或下载只读 HTML。"
+  default_prompt: "使用 $pm-prototype-workbench 生成或转换成 PRD 三栏工作台，保留原型交互和已有内容，左侧需求说明只含全局描述、上线后数据需求、埋点说明，全部只写文字，可选任意可见业务元素填写逻辑，已明确提供的文字按要求写入，缺失内容留空，不自动补写业务逻辑或下载只读 HTML。"
 
 policy:
   allow_implicit_invocation: true

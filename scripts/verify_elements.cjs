@@ -5,7 +5,7 @@ async function main(){
  const args=process.argv.slice(2);let modulePath;
  if(args.length){assert.equal(args.shift(),'--jsdom');modulePath=args.shift();assert.equal(args.length,0);}
  const {JSDOM,VirtualConsole}=require(modulePath||require.resolve('jsdom',{paths:[process.cwd(),__dirname]}));
- const source=fs.readFileSync(path.join(__dirname,'../assets/workbench.html'),'utf8');
+ const source=require('./fixture.cjs')();
  const parse=s=>JSON.parse(s.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
  const fixture='<section id="element-fixture"><p><span class="plain-copy">没有预设锚点的文字</span></p><img id="fixture-image" alt="示意图片" src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2240%22%3E%3Crect width=%2280%22 height=%2240%22 fill=%22%23087f5b%22/%3E%3C/svg%3E"><button id="fixture-disabled" disabled>禁用按钮</button><input id="fixture-disabled-input" disabled value="只读值"><a id="fixture-link" href="#destination" tabindex="7" aria-label="查看详情">查看详情</a><button id="fixture-event">事件按钮</button><textarea id="fixture-textarea">多行内容</textarea><select id="fixture-select"><option>选项 A</option><option>选项 B</option></select><input id="fixture-checkbox" type="checkbox" value="a"><input id="fixture-radio" type="radio" value="b"><svg id="fixture-icon" style="pointer-events:none" width="24" height="24" aria-label="图标"><path d="M2 2h20v20H2Z" fill="green"/></svg><canvas id="fixture-canvas" width="40" height="30"></canvas><div id="fixture-contenteditable" contenteditable="true">可编辑内容</div></section>';
  const marker="+action+'</div>';}";assert.ok(source.includes(marker));

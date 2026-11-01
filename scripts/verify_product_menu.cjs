@@ -5,7 +5,7 @@ async function main(){
  const args=process.argv.slice(2);let modulePath;
  if(args.length){assert.equal(args.shift(),'--jsdom');modulePath=args.shift();assert.equal(args.length,0);}
  const {JSDOM,VirtualConsole}=require(modulePath||require.resolve('jsdom',{paths:[process.cwd(),__dirname]}));
- let html=fs.readFileSync(path.join(__dirname,'../assets/workbench.html'),'utf8');
+ let html=require('./fixture.cjs')();
  const parse=s=>JSON.parse(s.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
  const seed=parse(html),runs=[],checks=[];
  seed.navigation={products:{a:{name:'A 产品'},b:{name:'B 产品'}},platforms:{cms:{name:'CMS'},front:{name:'前台'}},pageScopes:{channels:{product:'a',platform:'cms'},tags:{product:'a',platform:'cms'},comments:{product:'b',platform:'cms'},words:{product:'a',platform:'front'}}};

@@ -1,0 +1,21 @@
+.h5-device{position:relative;width:390px;height:844px;max-width:none;background:#fffcf7;color:#2e3430;overflow:hidden;border-radius:24px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;font-size:16px}
+.h5-device button,.h5-device input,.h5-device textarea{font:inherit}.h5-device button{cursor:pointer}
+.h5-status{height:42px;padding:14px 24px 0;display:flex;justify-content:space-between;font-size:12px;font-weight:650}
+.h5-top{height:82px;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}.h5-wordmark{font-size:25px;letter-spacing:2px;font-weight:750}.h5-subtitle{font-size:12px;color:#777e75;margin-top:5px}.h5-avatar{width:38px;height:38px;border-radius:50%;background:#ebdcd0;display:grid;place-items:center;color:#765941}
+.h5-tabs{display:flex;gap:26px;padding:0 24px;height:48px;align-items:start}.h5-tabs button{border:0;background:none;padding:8px 0;color:#92988f;font-weight:600}.h5-tabs button[aria-pressed=true]{color:#2e3430;border-bottom:3px solid #e78c58}
+.h5-feed{height:594px;overflow-y:auto;padding:12px 22px 24px;scrollbar-width:thin;overscroll-behavior-y:contain}
+.h5-card{position:relative;margin-bottom:22px}.h5-art{position:relative;width:346px;height:196px;border:0;border-radius:19px;overflow:hidden;background:#f0dcc7;display:block;text-align:left}.h5-art.sage{background:#dce3d3}.h5-art.blue{background:#dbe4ec}.h5-art.pink{background:#f0ddd9}.h5-art.cream{background:#ece4d2}
+.h5-art{padding:0}.h5-art svg{width:100%;height:100%;display:block}.h5-art-label{position:absolute;top:17px;left:17px;padding:5px 9px;border-radius:20px;background:#fff9;font-size:11px;color:#4b5349;letter-spacing:1px}.h5-card h3{font-size:18px;line-height:1.5;margin:13px 0 5px;font-weight:650}.h5-card p{font-size:13px;line-height:1.8;margin:0 40px 0 0;color:#7b8178}.h5-heart{position:absolute;right:0;bottom:3px;width:34px;height:34px;border:1px solid #e7e9df;border-radius:50%;background:#fffdf8;color:#a6ada2}.h5-heart[aria-pressed=true]{color:#bf6648;background:#fbebe2;border-color:#edc9b8}
+.h5-bottom{height:78px;display:flex;justify-content:space-evenly;align-items:center;border-top:1px solid #e9e8df;background:#fffcf7}.h5-bottom button{width:90px;border:0;background:none;display:grid;justify-items:center;gap:5px;color:#92978c;font-size:11px}.h5-bottom button[aria-pressed=true]{color:#bb7247}.h5-bottom svg{width:21px;height:21px}
+.h5-sheet-overlay{position:absolute;inset:0;background:#27372b55;display:flex;align-items:flex-end;z-index:10;border-radius:24px;overflow:hidden}.h5-sheet{width:390px;background:#fffcf7;border-radius:26px 26px 0 0;padding:24px;max-height:760px;overflow:auto}.h5-sheet-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.h5-sheet-top span{font-size:12px;color:#8b9186}.h5-close{border:0;border-radius:50%;width:32px;height:32px;background:#eeefe6;color:#697260}.h5-sheet h3{font-size:23px;margin:16px 0 10px}.h5-sheet p{font-size:14px;line-height:1.9;color:#7b8178}.h5-sheet .h5-art{width:342px;height:180px}.h5-sheet label{display:block;font-size:13px;margin:24px 0 9px}.h5-sheet textarea{width:100%;min-height:112px;padding:14px;border:1px solid #dedfd4;border-radius:12px;resize:vertical;background:#fffefb;line-height:1.7}.h5-save{width:100%;padding:15px;margin:18px 0 8px;border:0;border-radius:13px;background:#334c3c;color:#fff;font-weight:600}
+
+
+/* Zoom affects only the business canvas; toolbar and written notes remain full size. */
+.canvas-zoom-control{display:inline-flex;align-items:center;gap:5px;flex:none;color:var(--muted);font-size:10px;white-space:nowrap}
+.preview-toolbar #canvas-zoom{flex:none;width:132px;min-width:0;max-width:none}
+
+/* Plain-text requirement documents use the same full-height editor as global content. */
+.requirement-docs{padding:16px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.requirement-docs .product-heading{margin-bottom:10px}
+@media(min-width:961px){.appbar{min-height:76px;height:auto;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}.app-actions{flex-wrap:wrap}.identity{min-width:205px}}
+@media(max-width:520px){.app-actions #export-md{width:auto;order:0}}

@@ -15,7 +15,7 @@ async function main() {
     else throw new Error('Unknown option: ' + flag);
   }
   const {JSDOM, VirtualConsole} = require(modulePath || require.resolve('jsdom', {paths: [process.cwd(), __dirname]}));
-  const template = fs.readFileSync(path.join(__dirname, '../assets/workbench.html'), 'utf8');
+  const template = require('./fixture.cjs')();
   const parse = html => JSON.parse(html.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
   const encode = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
   const embed = (html, seed) => html.replace(/(id="prototype-data">)[\s\S]*?(<\/script>)/, (_, a, b) => a + encode(seed) + b);
@@ -34,10 +34,10 @@ async function main() {
   };
   seed.model.notes.forEach(note => note.requirement = 'channels');
   // Only the verification copy changes labels and grouping; business renderers stay intact.
-  let fixture = template.replace(/const requirements=\[[\s\S]*?\];/, "const requirements=[{id:'channels',name:'跨产品调整',code:'REQ-01',scope:'',boundary:''}];");
-  fixture = fixture.replace("comments:{req:'moderation',name:'审核列表'", "comments:{req:'channels',name:'渠道列表'");
-  fixture = fixture.replace("words:{req:'moderation',name:'违禁词配置'", "words:{req:'channels',name:'首页'");
-  fixture = embed(fixture, seed);
+  seed.requirements=[{id:'channels',name:'跨产品调整',code:'REQ-01',scope:'',boundary:''}];
+  Object.assign(seed.pages.comments,{req:'channels',name:'渠道列表'});
+  Object.assign(seed.pages.words,{req:'channels',name:'首页'});
+  const fixture = embed(template, seed);
   const runtimes = [], checks = [];
   function boot(html, cache) {
     const errors = [], vc = new VirtualConsole();

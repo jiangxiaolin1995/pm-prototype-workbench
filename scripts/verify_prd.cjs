@@ -5,7 +5,7 @@ async function main(){
  const args=process.argv.slice(2);let modulePath;
  if(args.length){assert.equal(args.shift(),'--jsdom');modulePath=args.shift();assert.equal(args.length,0);}
  const {JSDOM,VirtualConsole}=require(modulePath||require.resolve('jsdom',{paths:[process.cwd(),__dirname]}));
- const source=fs.readFileSync(path.join(__dirname,'../assets/workbench.html'),'utf8');
+ const source=require('./fixture.cjs')();
  const parse=s=>JSON.parse(s.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
  const replace=(html,seed)=>html.replace(/(id="prototype-data">)[\s\S]*?(<\/script>)/,(_,a,b)=>a+JSON.stringify(seed).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026')+b);
  const seed=parse(source),runs=[],checks=[];

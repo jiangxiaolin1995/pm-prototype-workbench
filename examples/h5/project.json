@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 3,
+  "artifactId": "h5-canvas-scroll-demo-20261026",
+  "snapshotId": "h5-design-390-844-v1",
+  "version": "390 × 844",
+  "savedAt": "2026-10-26T21:30:00+08:00",
+  "model": {
+    "activePage": "channels",
+    "data": {
+      "channels": [
+        {
+          "id": "CH-001",
+          "name": "把周末，留给一阵风",
+          "description": "走一段没有计划的路，收集城市里的小小惊喜。",
+          "category": "日常",
+          "color": "peach",
+          "tags": [],
+          "active": true,
+          "favorite": false,
+          "thought": ""
+        },
+        {
+          "id": "CH-002",
+          "name": "在街角，遇见好天气",
+          "description": "阳光落在咖啡杯边，也落在今天的好心情里。",
+          "category": "日常",
+          "color": "sage",
+          "tags": [],
+          "active": true,
+          "favorite": false,
+          "thought": ""
+        },
+        {
+          "id": "CH-003",
+          "name": "去山里，慢一点",
+          "description": "沿着石阶向上，听风穿过树梢的声音。",
+          "category": "旅行",
+          "color": "blue",
+          "tags": [],
+          "active": true,
+          "favorite": false,
+          "thought": ""
+        },
+        {
+          "id": "CH-004",
+          "name": "收藏日落的颜色",
+          "description": "不着急赶路，等天空变成柔软的橘子色。",
+          "category": "旅行",
+          "color": "pink",
+          "tags": [],
+          "active": true,
+          "favorite": false,
+          "thought": ""
+        },
+        {
+          "id": "CH-005",
+          "name": "给生活留一点空白",
+          "description": "翻几页书，画一朵云，把时间还给自己。",
+          "category": "日常",
+          "color": "cream",
+          "tags": [],
+          "active": true,
+          "favorite": false,
+          "thought": ""
+        },
+        {
+          "id": "CH-006",
+          "name": "下一站，海边见",
+          "description": "向着有海风的方向，开启一次轻轻的出发。",
+          "category": "旅行",
+          "color": "blue",
+          "tags": [],
+          "active": true,
+          "favorite": false,
+          "thought": ""
+        }
+      ],
+      "comments": [],
+      "words": [],
+      "categories": {}
+    },
+    "views": {
+      "channels": {
+        "query": "",
+        "queryDraft": "",
+        "status": "",
+        "statusDraft": "",
+        "preview": "live",
+        "modal": null,
+        "savedForm": null,
+        "errors": {},
+        "newText": "",
+        "category": "推荐",
+        "scroll": 0,
+        "notesScroll": 0,
+        "tableScroll": 0,
+        "h5FeedScroll": 0,
+        "canvasScrollLeft": 0,
+        "canvasScrollTop": 0
+      }
+    },
+    "drafts": {},
+    "notes": [],
+    "counters": {
+      "note": 1,
+      "channel": 6,
+      "word": 4
+    },
+    "updatedAt": "2026-10-16T00:28:25.056267+08:00",
+    "globalContent": "",
+    "workspaceView": "prototype"
+  },
+  "readOnly": false,
+  "projectTitle": "H5 交互示例",
+  "navigation": {
+    "products": {
+      "h5-demo": {
+        "name": "微光 · 交互示例"
+      }
+    },
+    "platforms": {
+      "h5": {
+        "name": "H5"
+      }
+    },
+    "pageScopes": {
+      "channels": {
+        "product": "h5-demo",
+        "platform": "h5"
+      }
+    }
+  },
+  "requirements": [
+    {
+      "id": "channels",
+      "name": "H5 交互示例",
+      "code": "DEMO",
+      "scope": "",
+      "boundary": ""
+    }
+  ],
+  "pages": {
+    "channels": {
+      "req": "channels",
+      "name": "灵感首页",
+      "intro": "",
+      "canvas": {
+        "width": 390,
+        "height": 844
+      },
+      "states": {
+        "list": "首页",
+        "form": "详情"
+      }
+    }
+  },
+  "runtimeVersion": "4.0"
+}

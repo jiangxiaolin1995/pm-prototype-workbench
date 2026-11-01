@@ -5,8 +5,9 @@ async function main(){
  const args=process.argv.slice(2);let modulePath;
  if(args.length){assert.equal(args.shift(),'--jsdom');modulePath=args.shift();assert.equal(args.length,0);}
  const {JSDOM,VirtualConsole}=require(modulePath||require.resolve('jsdom',{paths:[process.cwd(),__dirname]}));
- const source=fs.readFileSync(path.join(__dirname,'../assets/workbench.html'),'utf8');
- const html=source.replace("channels:{req:'channels'","channels:{canvas:{width:390,height:844},req:'channels'");
+ const source=require('./fixture.cjs')();
+ const fixtureData=require('./test_support.cjs').parse(source);fixtureData.pages.channels.canvas={width:390,height:844};
+ const html=require('./test_support.cjs').embed(source,fixtureData);
  const parse=s=>JSON.parse(s.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
  const runs=[],checks=[];
  function boot(text,cached){
