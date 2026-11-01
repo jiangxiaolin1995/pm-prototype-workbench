@@ -10,13 +10,15 @@
 | --- | --- | --- |
 | `#prototype-data` | 内嵌项目元数据与完整初始模型 | `projectTitle`、版本、`model.data`、各页 `views`、`notes` 和 `counters` 同步更新 |
 | `navigation`、`pageScope`、`pageIdentity` | 产品、端与页面的稳定映射 | 元数据随文件导出；按下方结构配置，不从旧浏览器状态覆盖、不以名称作状态键 |
-| `model.globalContent`、`model.workspaceView`、`#global-menu`、`renderGlobalContent` | 首项全局内容及独立工具视图 | 工作文件直接填写，默认空、自动暂存；只读导出纯文本查看；不塞入 `pages`，不改 `activePage`，回到业务恢复原状态；导出携带正文，只读以文件为准 |
-| `model.globalNotes`、`renderGlobalNotes` | 兼容原工作台级文字 | 非空 `prototype`、`notes` 在首项全局内容页中独立显示；旧 `directory` 保留为兼容数据，不渲染、不合并；旧模型缺项补空，导出保留完整模型 |
+| `model.globalContent`、`model.workspaceView`、`#global-menu`、`renderGlobalContent` | 首项全局描述及独立工具视图 | 工作文件直接填写，默认空、自动暂存；只读导出纯文本查看；不塞入 `pages`，不改 `activePage`，回到业务恢复原状态；导出携带正文，只读以文件为准 |
+| `model.globalNotes`、`renderGlobalNotes` | 兼容原工作台级文字 | 非空 `prototype`、`notes` 在首项全局描述页中独立显示；旧 `directory` 保留为兼容数据，不渲染、不合并；旧模型缺项补空，导出保留完整模型 |
 | `productGroups`、`model.activeProduct`、`model.productGlobalContent`、`renderProductContent` | 产品全局正文和左侧二级菜单 | 产品 ID 为存储键；每个产品先显示全局菜单再列实际页面；不增加中间页面 Tab，保留右侧研发说明 |
 | `menus`、`model.menuGlobalContent` | 兼容上版菜单正文 | 旧需求/产品/端组合 ID 不变；非空正文在所属产品全局页按原归属分别显示、编辑和导出，不自动合并 |
 | `pickingTarget`、`togglePicking`、`#pick-note` | 显式、单次选位置 | 工作文件一直可用，不设模式切换；一次选择后自动取消，下一次需重新点按钮，Esc 只取消拾取；只读移除入口 |
 | `selectableElement`、`selectionRecord`、`resolveElement`、`elementAnchorKnown` | 选择任意可见元素并持久定位 | 使用 [元素选择约定](element-targeting.md)，精确选择点击元素；自动位置与旧手动锚点兼容；校验不得执行业务事件 |
 | `elementAvailable`、`noteIsVisible`、`noteEntryAnchor`、`hiddenNoteGroups` | 可见性与真实父级入口映射 | 按场景和记录 ID 归到可见入口；内部数量用 `data-note-entry`，关联 IDs 用 `data-note-children`；无真实父级时不生成标识 |
+| `model.dataRequirements`、`model.trackingContent`、`normalizeRequirementTexts`、`renderRequirementContent` | 上线后数据需求与埋点说明，整个工作台共用 | 见 [文字模型](prd-template.md#模型与迁移)，默认空白、纯文本；旧埋点沿用迁移，旧章节保留原始数据，不自动填入全局描述 |
+| `saveWorkHTML`、`writeHTMLSnapshot`、`exportMarkdown` | 工作副本、只读与 PRD 导出 | 工作副本保留草稿与新快照键；只读以文件正文为准；完整导出三份文字、产品正文及页面说明 |
 | `requirements` | 左侧需求名、编号、范围、边界 | 使用真实需求；保留稳定 ID |
 | `pages` | 页面名、所属需求、状态标签 | 页面键必须与 `views`、说明的 `page` 一致 |
 | `validModel`、`validNotes` | 缓存载荷校验 | 示例 `channels/comments/words/categories` 是业务专属，换业务必须更新校验 |
@@ -35,7 +37,7 @@
 
 ## 布局适配
 
-桌面 `.workspace` 使用同一个 `--workbench-side-width` 定义左右栏，`.stage` 扣除合理边距后占满中间栏，不设固定最大宽度。`sizeCanvasViewport` 用中间栏高度减去标题、工具条、页脚、内外边距和边框，设置预览视口高度；纵向排列时给预览区域分配一屏内的可用高度。不要保留 `max-width:1150px` 或 `max-height:70vh` 等限制。固定宽度设备放在 `.prototype` 内，保持设备中心与中间列中心一致；不要用 `left` 或 `translateX` 的固定偏移补偿不等宽侧栏。
+桌面 `.workspace` 使用同一个 `--workbench-side-width` 定义左右栏，`.stage` 扣除合理边距后占满中间栏，不设固定最大宽度。`sizeCanvasViewport` 用中间栏高度减去标题、工具条、内外边距和边框，设置预览视口高度；纵向排列时给预览区域分配一屏内的可用高度。不要保留 `max-width:1150px` 或 `max-height:70vh` 等限制。固定宽度设备放在 `.prototype` 内，保持设备中心与中间列中心一致；不要用 `left` 或 `translateX` 的固定偏移补偿不等宽侧栏。
 
 模板以 960px 为纵向排列断点。定制断点时同时检查 `.workspace`、`.directory` 的 `grid-column`、`body/#app` 高度、`.preview-pane` 滚动及 `.sidebar` 边框。旧的 `grid-column:1/-1` 不能残留在新的三栏区间内，否则目录占满首行后，原型会落进原本的目录列。媒体规则要成组修改，避免叠加一条新列宽后留下旧布局状态。
 
@@ -55,10 +57,13 @@
 
 ## 产品、端与页面归属
 
-左侧固定首项为「全局内容」，其后按产品组织二级菜单。需求和端是页面归属信息，不再为同一产品重复建立多个一级组。页面原有的弹窗、空结果等状态仍在中间的业务状态工具中，不是目录页面。
+左侧先显示「需求说明」及其三个纯文字入口，再按产品组织二级菜单。需求和端是页面归属信息，不再为同一产品重复建立多个一级组。页面原有的弹窗、空结果等状态仍在中间的业务状态工具中，不是目录页面。
 
 ```text
-全局内容
+需求说明
+  全局描述
+  上线后数据需求
+  埋点说明
 A 产品
   本产品全局说明
   渠道列表        CMS · 渠道标签调整
@@ -106,7 +111,7 @@ B 产品
 
 `productGroups` 由每页的 `productId` 汇总，跨端或跨需求的同一产品只建立一组。`model.productGlobalContent[productId]` 保存该产品的纯文本，默认空；`productGlobalScroll[productId]` 保存正文滚动。`activeProduct` 保存当前全局正文所属产品，`workspaceView` 为 `product` 时展示它；`activePage` 仍保存真实业务页，进入产品正文不把文档 ID 塞进业务状态。改显示名不改产品 ID。
 
-`#directory-items` 的首项 `#global-menu` 是整个工作台共用正文。其后 `.product-group` 的 `.product-children` 中，第一个按钮 `[data-product-global]` 是「本产品全局说明」，随后是该产品所有 `[data-page]` 页面。子项标明端及需求，支持普通键盘 Tab/Enter/空格，切换后保留导航焦点并更新 `aria-current`。中间不再用页面 Tab；原业务状态 `#scene-tabs` 保留。
+`#directory-items` 的首项 `#global-menu` 是整个工作台共用正文。然后是数据需求和埋点说明，接着 `.product-group` 的 `.product-children` 中，第一个按钮 `[data-product-global]` 是「本产品全局说明」，随后是该产品所有 `[data-page]` 页面。子项标明端及需求，支持普通键盘 Tab/Enter/空格，切换后保留导航焦点并更新 `aria-current`。中间不再用页面 Tab；原业务状态 `#scene-tabs` 保留。
 
 `switchProduct` 进入 `#product-global-panel`，工作文件显示 `#product-global-input`，输入自动暂存、完整增高；只读显示 `#product-global-text`。它不占业务页数或说明编号，不显示选位置或业务状态工具。右侧继续使用「研发说明」标题和原三栏样式，正文页只提示当前适用范围；进入业务页恢复原编号说明列表、定位和工作页编辑功能。
 
@@ -114,11 +119,11 @@ B 产品
 
 只读启动用文件内 `productGlobalContent` 覆盖查看缓存中的正文。旧缓存缺字段时补空；旧 `workspaceView: menu` 映射到原业务页所属产品的全局页。旧 `menuGlobalContent` 不合并到新的产品正文、不删除，非空条目在所属产品正文下方按「原需求 · 原端」分别显示，使用原键继续保存并导出。旧的 `menus` 元数据只用于兼容这些已有内容，不作为新导航入口。
 
-## 首项全局内容
+## 首项全局描述
 
-`model.globalContent` 保存一份由用户填写的完整正文，默认 `""`。`model.workspaceView` 取 `global`、`product` 或 `prototype`，只描述工作台视图，`activePage` 始终保存真实业务页面 ID；旧缓存缺字段时补空正文和 `prototype`，不重置已有数据。`#global-menu` 放在所有需求之前，进入后中间 `#global-content-panel` 展示正文，右侧只显示全局适用范围；隐藏页面状态、选位置和编号工具，不为这份正文生成编号。`globalNotes.prototype` 和 `globalNotes.notes` 独立保留，非空时在此正文下方显示带原归属的已有内容，直接填写并继续完整导出，不复制到各产品；左侧标题下不再渲染 `directory` 文本框，该旧字段作为兼容数据保留。
+`model.globalContent` 保存一份由用户填写的完整正文，默认 `""`。`model.workspaceView` 取 `global`、`data`、`tracking`、`product` 或 `prototype`，只描述工作台视图，`activePage` 始终保存真实业务页面 ID；旧缓存缺字段时补空正文和 `prototype`，不重置已有数据。`#global-menu` 放在「需求说明」分组第一项，之后是 `[data-prd-document]` 的数据需求与埋点说明，进入后中间 `#global-content-panel` 展示正文，右侧只显示全局适用范围；隐藏页面状态、选位置和编号工具，不为这份正文生成编号。`globalNotes.prototype` 和 `globalNotes.notes` 独立保留，非空时在此正文下方显示带原归属的已有内容，直接填写并继续完整导出，不复制到各产品；左侧标题下不再渲染 `directory` 文本框，该旧字段作为兼容数据保留。
 
-工作文件直接显示 `#global-content-input`，输入即暂存；只有 `readOnly` 导出文件显示完整可复制的 `#global-content-text`。切入全局前保存业务视图进度，切回原页恢复输入、弹窗、说明草稿和滚动位置。全局内容连同视图状态写入导出载荷；只读启动从文件恢复正文，不能让查看者旧缓存覆盖。导出时仍检查所有业务页的未保存说明草稿。
+工作文件直接显示 `#global-content-input`，输入即暂存；只有 `readOnly` 导出文件显示完整可复制的 `#global-content-text`。切入全局前保存业务视图进度，切回原页恢复输入、弹窗、说明草稿和滚动位置。全局描述连同视图状态写入导出载荷；只读启动从文件恢复正文，不能让查看者旧缓存覆盖。导出时仍检查所有业务页的未保存说明草稿。
 
 ## 说明和位置
 

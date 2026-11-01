@@ -56,7 +56,7 @@ async function main(){
   checks.push('normal_interaction_resumes_and_every_new_target_requires_rearming');
 
   r.click('#pick-note');r.click('#channel-name-input');r.set('#note-body','跨页草稿');
-  r.click('#global-menu');assert.equal(r.$('#global-menu span').textContent,'全局内容');
+  r.click('#global-menu');assert.equal(r.$('#global-menu span').textContent,'全局描述');
   assert.equal(r.$('#global-content-input').value,'');assert.equal(r.$('.stage').hidden,true);
   const content='整个工作台的约定\n<标签> & 纯文本';r.set('#global-content-input',content);
   assert.equal(r.state().globalContent,content);assert.equal(r.state().activePage,'channels');

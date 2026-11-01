@@ -32,7 +32,7 @@ async function main() {
     work.click('#global-menu');assert.equal(work.$('#global-menu').getAttribute('aria-current'),'page');
     assert.equal(work.d.querySelectorAll('[data-page][aria-current],.product-group.is-current').length,0);
     assert.equal(work.$('#global-content-panel').hidden,false);assert.equal(work.$('#global-content-input').value,'');
-    assert.equal(work.$('#global-menu span').textContent,'全局内容');
+    assert.equal(work.$('#global-menu span').textContent,'全局描述');
     assert.equal(work.$('.stage').hidden,true);assert.equal(work.$('#note-count').hidden,true);
     checks.push('first_menu_empty_global_view_separate_from_business_pages');
 

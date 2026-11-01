@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a fresh editable workbench from this skill's portable template."""
+"""Create a fresh editable PRD workbench from this skill's portable template."""
 
 import argparse
 import html
@@ -39,6 +39,14 @@ def main():
                 snapshotId='work-' + uuid4().hex, version=args.version,
                 savedAt=now, readOnly=False)
     seed['model']['drafts'] = {}
+    seed['model']['notes'] = []
+    seed['model']['counters']['note'] = 1
+    seed['model'].pop('prdDocuments', None)
+    for field in ('globalContent', 'dataRequirements', 'trackingContent'):
+        seed['model'][field] = ''
+    seed['model']['plainDocumentsMigrated'] = True
+    seed['model']['workspaceView'] = 'global'
+    seed['model'].pop('activeRequirement', None)
     seed['model']['updatedAt'] = now
     # These names identify the starter pages, not new business rules.
     seed['navigation']['products']['example']['name'] = (args.product or '').strip() or '产品未标明'
@@ -46,12 +54,12 @@ def main():
     encoded = json.dumps(seed, ensure_ascii=False, separators=(',', ':'))
     encoded = encoded.replace('<', r'\u003c').replace('>', r'\u003e').replace('&', r'\u0026')
     source = source[:match.start(2)] + encoded + source[match.end(2):]
-    source = re.sub(r'<title>.*?</title>', lambda _: '<title>' + html.escape(title) + ' · 原型工作台</title>', source, count=1, flags=re.S)
+    source = re.sub(r'<title>.*?</title>', lambda _: '<title>' + html.escape(title) + ' · PRD 原型工作台</title>', source, count=1, flags=re.S)
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open('x', encoding='utf-8') as stream:
         stream.write(source)
     print(json.dumps({'file': str(target), 'projectTitle': title, 'readOnly': False,
-                      'next': 'Configure products/platforms/pageScopes and replace sample requirements, business pages, data, and notes before delivery.'}, ensure_ascii=False))
+                      'next': 'Configure products/platforms/pageScopes and replace sample business pages/data before delivery. PRD text and annotations stay empty unless provided by the user.'}, ensure_ascii=False))
 
 
 if __name__ == '__main__':
