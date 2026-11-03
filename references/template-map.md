@@ -74,13 +74,18 @@ python3 <skill-dir>/scripts/init_prototype.py --title "项目" --config "/项目
 | togglePicking / selectionRecord / resolveElement | 单次拾取和稳定元素路径 |
 | renderSidebar / refreshNoteInPlace / saveNote | 原位编辑，不重建业务 DOM |
 | drawAnnotationOverlays / highlightRegion / locateNote | 彩框、编号、说明双向定位 |
+| installResponsiveWorkspace / syncWorkspacePanels / openWorkspaceNotes | 工作台断点、目录／说明侧栏与编辑联动，不重建业务 |
 | probeAnchor | 在模型副本、离线 DOM 中检验位置，恢复原模型引用 |
 | reconcile / renderCacheReview / persist | [文件与暂存合并](storage.md) |
 | writeHTMLSnapshot / exportReady / exportMarkdown | 原始外壳加当前模型，真实导出 |
 
 ## 布局适配
 
-桌面左右栏同用 `--workbench-side-width`，`.stage` 填满中间可用宽高，960px 以下纵排；不要用 max-width、70vh 或固定偏移挤压业务区域。顶部左右紧凑排列，窄屏换行。
+`assets/workbench.html` 内的 `#workspace-style` 和 `WORKSPACE_LAYOUT_START/END` 维护整体布局；初始化、示例组装和只读导出共用这套代码，无需额外资源。桌面左右栏同用 `--workbench-side-width`，`.workspace` 占满窗口剩余高度，`.stage` 填满中间可用宽高，各栏独立滚动，不用 max-width、70vh 或固定偏移挤压业务区。
+
+断点按工作台窗口宽度计算：≥1280px 默认三栏；900–1279px 默认收起目录、保留说明；<900px 默认收起两侧，目录和说明以互斥侧栏展开。顶部「目录」「说明」随时可开关，<1200px 把保存／导出和边框开关放入「更多」。这些是工具层布局，不改变业务画布设计尺寸，也不把三栏上下堆成长页。
+
+侧栏切换和 resize 只调整布局、重算内部缩放及文字框高度，不调用业务 render/bind 或 renderAll。选中元素后展开说明编辑区，重新定位先收起覆盖原型的侧栏；小屏点击说明定位时先关闭覆盖层再判断业务目标可见性，避免把仅被工具层 inert 的目标误判为需要恢复业务场景。点击业务区已有编号时展开对应说明。普通业务点击只做原有被动高亮，不主动打开遮挡面板。侧栏支持关闭、遮罩和 Escape，Tab 焦点在展开侧栏中循环；切换目录项后收起目录，内容与草稿保留。只读文件保留查看面板能力，移除填写入口。
 
 `pages[id].canvas={width,height?}` 是设计尺寸，来自原稿／HTML；390×844 只是 H5 示例。未配置时为 960px 自然高度。`sizeCanvasViewport` 先定外层可用高度，`applyCanvasZoom` 只给内部画布设置等比 CSS zoom。自适应取宽、高比例的最小值，可超过 1；固定比例不随窗口变化，空间不足由外层双向滚动。缩放不重建 DOM，不缩放外层工具和正文。
 

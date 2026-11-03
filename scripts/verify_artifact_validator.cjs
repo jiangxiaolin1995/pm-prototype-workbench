@@ -14,7 +14,8 @@ async function main(){
   const good=await verify(file,{modulePath});assert.ok(good.ok);assert.deepEqual(good.pages,['page-1']);
   const broken=path.join(temporary,'broken-export.html');fs.writeFileSync(broken,html.replace("$('#export-html').onclick=exportHTML","$('#export-html').onclick=()=>{}"));
   await assert.rejects(()=>verify(broken,{modulePath}),/No real download/);
-  const brokenUI=path.join(temporary,'broken-ui.html');fs.writeFileSync(brokenUI,html.replace('shell();renderAll();','shell();throw new Error("deliberate runtime failure");'));
+  const brokenUI=path.join(temporary,'broken-ui.html'),brokenRuntime=html.replace("'use strict';","'use strict';throw new Error('deliberate runtime failure');");
+  assert.notEqual(brokenRuntime,html,'Runtime fault was not injected');fs.writeFileSync(brokenUI,brokenRuntime);
   await assert.rejects(()=>verify(brokenUI,{modulePath}),/Runtime failed/);
   assert.equal(fs.readFileSync(file,'utf8'),html);
   console.log(JSON.stringify({ok:true,checks:['custom_artifact_without_fixture_data','broken_actual_export_detected','broken_actual_runtime_detected','input_not_modified']},null,2));

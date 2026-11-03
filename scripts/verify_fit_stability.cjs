@@ -28,7 +28,8 @@ async function main(){
  }assert.equal(new Set(samples.slice(-6)).size,1,'Idle fit scale oscillates: '+samples.join(', '));return samples.at(-1);};
  try{
   const initial=await settle();assert.ok(initial>0&&initial<1);
-  assert.ok($('#prototype').offsetHeight*initial<=availableHeight-32,'Rounding must not overflow the fitted viewport');
+  const viewportStyle=w.getComputedStyle($('#prototype-viewport')),verticalPadding=parseFloat(viewportStyle.paddingTop)+parseFloat(viewportStyle.paddingBottom);
+  assert.ok($('#prototype').offsetHeight*initial<=availableHeight-verticalPadding,'Rounding must not overflow the fitted viewport');
   checks.push('natural_height_fit_converges_and_stays_inside_viewport_despite_text_rounding');
   $('#new-channel').click();const input=$('#channel-name-input');input.value='缩放时保留的输入';input.dispatchEvent(new w.Event('input',{bubbles:true}));
   contentGrowth=400;const taller=await settle();assert.ok(taller<initial,'Real content growth must still update fit');

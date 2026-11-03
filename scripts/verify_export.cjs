@@ -60,7 +60,7 @@ async function main() {
   const checkReadOnly = runtime => {
     assert.ok(runtime.d.querySelector('#readonly-badge'));
     assert.equal(runtime.d.querySelectorAll('[data-mode=annotate],#pick-note,[data-global-note],#export-html,#export-md,#note-form,.note-controls').length, 0);
-    assert.equal(runtime.d.querySelectorAll('.sidebar button,.sidebar input,.sidebar textarea,.sidebar select,.sidebar a,.sidebar details,.sidebar [contenteditable=true]').length, 0);
+    assert.equal(runtime.d.querySelectorAll('.sidebar button:not(.workspace-panel-close),.sidebar input,.sidebar textarea,.sidebar select,.sidebar a,.sidebar details,.sidebar [contenteditable=true]').length, 0);
   };
   function checkHierarchyBadges(runtime) {
     assert.equal(runtime.d.querySelectorAll('#hidden-notes,#hidden-note-links').length,0,'Hidden notes belong to their opening button');
@@ -263,4 +263,4 @@ async function main() {
     for (const runtime of runtimes) runtime.w.close();
   }
 }
-main().catch(error => { console.error(error.message); process.exitCode = 1; });
+main().catch(error => { console.error(error.stack); process.exitCode = 1; });

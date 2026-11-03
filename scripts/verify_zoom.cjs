@@ -42,11 +42,12 @@ async function main(){
   let viewportWidth=300,viewportHeight=500;
   Object.defineProperty(r.$('#prototype-viewport'),'clientWidth',{get:()=>viewportWidth,configurable:true});
   Object.defineProperty(r.$('#prototype-viewport'),'clientHeight',{get:()=>viewportHeight,configurable:true});
-  r.zoom('fit');const fit=Number(r.$('#prototype').style.zoom);assert.ok(fit>0&&fit<=1);assert.ok(390*fit<=268&&844*fit<=468);assert.equal(r.$('#canvas-zoom').value,'fit');
+  const viewportStyle=r.w.getComputedStyle(r.$('#prototype-viewport')),paddingX=parseFloat(viewportStyle.paddingLeft)+parseFloat(viewportStyle.paddingRight),paddingY=parseFloat(viewportStyle.paddingTop)+parseFloat(viewportStyle.paddingBottom);
+  r.zoom('fit');const fit=Number(r.$('#prototype').style.zoom);assert.ok(fit>0&&fit<=1);assert.ok(390*fit<=viewportWidth-paddingX&&844*fit<=viewportHeight-paddingY);assert.equal(r.$('#canvas-zoom').value,'fit');
   assert.equal(r.$('#channel-name-input').value,'正在填写的表单');checks.push('fit_preserves_ratio_and_fits_both_available_dimensions');
   const fitInput=r.$('#channel-name-input');viewportWidth=1600;viewportHeight=1800;r.zoom('fit');
-  const enlarged=Number(r.$('#prototype').style.zoom);assert.ok(enlarged>2,'Large windows should enlarge the original canvas');assert.ok(390*enlarged<=1568&&844*enlarged<=1768);
-  assert.ok(1768-844*enlarged<1,'Fit should use the limiting dimension, not leave spare height');
+  const enlarged=Number(r.$('#prototype').style.zoom);assert.ok(enlarged>2,'Large windows should enlarge the original canvas');assert.ok(390*enlarged<=viewportWidth-paddingX&&844*enlarged<=viewportHeight-paddingY);
+  const spareHeight=viewportHeight-paddingY-844*enlarged;assert.ok(spareHeight>=0&&spareHeight<1,'Fit should use the limiting dimension without overflow or spare height');
   assert.equal(r.$('#channel-name-input'),fitInput);assert.equal(r.$('#channel-name-input').value,'正在填写的表单');
   viewportWidth=600;viewportHeight=800;r.w.dispatchEvent(new r.w.Event('resize'));await new Promise(resolve=>r.w.requestAnimationFrame(resolve));
   const resized=Number(r.$('#prototype').style.zoom);assert.ok(resized<1&&resized<enlarged);assert.equal(r.$('#channel-name-input'),fitInput);
