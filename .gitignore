@@ -7,3 +7,6 @@ __pycache__/
 output/
 .verification/
 *.log
+.workbench/
+*-打开工作台.app/
+*-打开工作台.command

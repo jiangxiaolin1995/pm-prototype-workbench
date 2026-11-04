@@ -2,12 +2,12 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
 const parse=html=>JSON.parse(html.match(/id="prototype-data">([\s\S]*?)<\/script>/)[1]);
 const encode=value=>JSON.stringify(value).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
 const embed=(html,seed)=>html.replace(/(id="prototype-data">)[\s\S]*?(<\/script>)/,(_,a,b)=>a+encode(seed)+b);
-function boot(html,cached,modulePath){
+function boot(html,cached,modulePath,options={}){
  const {JSDOM,VirtualConsole}=require(modulePath||require.resolve('jsdom',{paths:[process.cwd(),__dirname]}));
  const seed=parse(html),errors=[],downloads=[],vc=new VirtualConsole();let blob;
  vc.on('jsdomError',e=>errors.push(e.message));
  const key=(seed.readOnly?'prototype-viewer:v3:':'prototype-workbench:v3:')+seed.artifactId+':'+seed.snapshotId;
- const dom=new JSDOM(html,{url:'https://isolated-workbench.test/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+ const dom=new JSDOM(html,{url:options.url||'https://isolated-workbench.test/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
   w.confirm=()=>true;w.HTMLElement.prototype.scrollIntoView=function(){};
   w.HTMLElement.prototype.getBoundingClientRect=function(){return {left:10,top:10,width:800,height:600,right:810,bottom:610};};
   w.HTMLElement.prototype.getClientRects=function(){return this.closest('[hidden],[inert]')?[]:[this.getBoundingClientRect()];};

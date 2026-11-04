@@ -78,6 +78,7 @@ python3 <skill-dir>/scripts/init_prototype.py --title "项目" --config "/项目
 | probeAnchor | 在模型副本、离线 DOM 中检验位置，恢复原模型引用 |
 | reconcile / renderCacheReview / persist | [文件与暂存合并](storage.md) |
 | writeHTMLSnapshot / exportReady / exportMarkdown | 原始外壳加当前模型，真实导出 |
+| installHTMLPersistence / connectHTMLFile / flushHTMLSave | 授权后写入原工作 HTML、读回确认、失败与外部修改保护；不更换文件身份 |
 
 ## 布局适配
 
@@ -94,3 +95,9 @@ python3 <skill-dir>/scripts/init_prototype.py --title "项目" --config "/项目
 业务响应式按画布宽度工作，使用 `prototype-canvas` 容器查询或完整接入的设计视口 iframe，不随外壳窄屏规则压扁手机内容。旧 98/87/76/75/65% 分别衔接 100/90/80/80/70%；有效选择继续保留。内部列表与外层画布分别滚动。
 
 标注窗口矩形减去画布原点后除以比例，转回设计坐标；框和角标随画布只缩放一次。尺寸、边界、居中和定位检查见 [验证](verification.md)，几何桩不能替代真实浏览器。
+
+## 本地编辑入口
+
+`prepare_workbench.py` 在实际 HTML 旁生成绑定入口，不改正文；`serve_workbench.py` 为单个文件提供本机保存。HTML 的 `localSaveConfig / beginHTMLSave / flushHTMLSave` 分别识别绑定配置、解释直接打开时的授权、提交保存。`writeHTMLSnapshot` 移除注入的 `workbench-local-save`，保证只读交付独立。
+
+初始化与示例构建输出的 `editEntry` 是默认给用户打开的编辑入口；`file` 仅标识已绑定的工作 HTML。禁止用裸 HTML 链接代替自动保存入口，禁止增加手动选文件授权入口。

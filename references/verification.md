@@ -49,6 +49,7 @@ actions 支持 click 或 selector/value/event；expect 支持 value、包含 tex
 | verify_workspace.cjs | 整体布局断点、侧栏开关、目录导航、输入与草稿保留、标注联动及真实只读导出的面板 |
 | verify_export.cjs | 渠道／审核 fixture 的详细导出回归，使用该示例的页面和控件 |
 | verify_revision.cjs | 同文件更新与浏览器编辑合并／冲突 |
+| verify_file_save.cjs | 真实 HTTP 与 HTML 自动写入、无缓存重开续写、服务失败、外部更新与多窗口保护、全流程不选文件 |
 | verify_init.py | 干净初始化、明确文字带入、不覆盖原文件 |
 | verify_artifact_validator.cjs | 通用验证入口的正例与损坏产物反例 |
 
@@ -75,3 +76,7 @@ node <skill-dir>/scripts/verify_export.cjs "/隔离目录/channel-review.html" -
 - 导出测试拦截实际下载，在内存或明确临时验证目录重开；确认只读文字和业务操作边界。测试完成回到工作文件，不提供测试只读页为交付物。
 
 几何桩、CSS 文本检查和脚本通过不证明上述视觉结果。结束时关闭本次 TaskSpace／临时服务，记录实际覆盖与未验证项；不扩大为后端或真实设备验收。
+
+本地编辑程序运行 `python3 scripts/verify_local_save.py` 和 `node scripts/verify_local_bridge.cjs`。真实浏览器验证无需选文件的正文及草稿落盘、关闭后重开、并发和故障保护、只读导出移除本机连接。仅操作临时 HTML；结束时关闭浏览器空间并精确停止自建服务。
+
+自动保存回归：`node scripts/verify_file_save.cjs` 启动临时保存服务，用真实页面处理器把正文、草稿与说明写入临时 HTML，再以独立存储重开、修改、导出；同时检查旧窗口不能覆盖新版、断开不会误报成功、离线与快捷键不调用文件选择器。真实浏览器再以不同存储来源复核这一流程；不能仅以当前浏览器刷新后文字仍在作为落盘证据。

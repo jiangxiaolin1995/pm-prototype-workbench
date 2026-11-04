@@ -40,6 +40,11 @@ async function main(){try{
  const migrated=open(embed(source,legacyFile),{model:legacy});migrated.click('#global-menu');assert.equal(migrated.$('#global-content-input').value,'旧缓存用户文字');assert.equal(migrated.$('#cache-review').hidden,false);assert.ok(migrated.$('#cache-review').textContent.includes('来自旧缓存'));
  const viewerSeed={...conflictSeed,readOnly:true};const viewer=open(embed(source,viewerSeed),{model:legacy});viewer.click('#global-menu');assert.equal(viewer.$('#global-content-text').textContent,'文件明确修改后的正文');assert.equal(viewer.$('#cache-review').hidden,true);
  checks.push('legacy_without_baseline_is_not_blindly_applied_and_readonly_uses_file');
+ const clockBase=parse(source),clockFile=structuredClone(clockBase),clockCache=structuredClone(clockBase.model);
+ clockFile.model.updatedAt='2026-11-04T09:00:00Z';clockCache.updatedAt='2026-11-04T09:00:01Z';
+ const timestamps=open(embed(source,clockFile),{model:clockCache,baseModel:clockBase.model});
+ assert.equal(timestamps.$('#cache-review').hidden,true,'Save timestamps must never become a PRD conflict');
+ checks.push('save_timestamp_differences_do_not_interrupt_reopening');
  for(const r of runs)assert.deepEqual(r.errors,[]);
  assert.deepEqual(updated.errors,[]);
  console.log(JSON.stringify({ok:true,checks},null,2));

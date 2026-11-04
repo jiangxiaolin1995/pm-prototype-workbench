@@ -480,6 +480,7 @@ const copyValue=value=>value===absent?absent:clone(value);
 const own=(value,key)=>plain(value)&&Object.hasOwn(value,key)?value[key]:absent;
 const userField=path=>['globalContent','dataRequirements','trackingContent','globalNotes','productGlobalContent','menuGlobalContent','notes','drafts'].includes(path[0]);
 function reconcile(base,file,cached,path=[],hasBase=true){
+ if(path.length===1&&path[0]==='updatedAt')return copyValue(file===absent?cached:file);
  if(equal(file,cached))return copyValue(file);
  if(hasBase&&equal(cached,base))return copyValue(file);
  if(hasBase&&equal(file,base))return copyValue(cached);
@@ -552,7 +553,7 @@ const isRequirementView=()=>Object.hasOwn(requirementTexts,model.workspaceView);
 const isDocumentView=()=>isGlobalView()||isProductView()||isRequirementView();
 function renderGlobalContent(){
  const editable=!readOnly,value=model.globalContent;
- $('#global-content-panel').innerHTML=editable?'<label class="sr-only" for="global-content-input">全局描述</label><textarea id="global-content-input" aria-label="全局描述" data-auto-grow rows="14">'+esc(value)+'</textarea><small>自动暂存于当前浏览器，导出 HTML 时一起保存。</small>':'<div id="global-content-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value)+'</div>';
+ $('#global-content-panel').innerHTML=editable?'<label class="sr-only" for="global-content-input">全局描述</label><textarea id="global-content-input" aria-label="全局描述" data-auto-grow rows="14">'+esc(value)+'</textarea><small>自动保存开启后，输入会写入当前文件；保存状态见顶部。</small>':'<div id="global-content-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value)+'</div>';
  const input=$('#global-content-input');if(input)input.oninput=()=>{if(readOnly)return;model.globalContent=input.value;growEditors();persist();};
  // Keep prior workspace-wide text accessible without copying it into menu documents.
  for(const key of ['prototype','notes']){if(model.globalNotes[key])$('#global-content-panel').insertAdjacentHTML('beforeend','<section data-global-slot="'+key+'"></section>');}
@@ -561,7 +562,7 @@ function renderGlobalContent(){
 function renderProductContent(){
  const group=currentProduct(),value=model.productGlobalContent[group.id]||'';
  const legacy=menus.filter(menu=>menu.productId===group.id&&model.menuGlobalContent[menu.id]);
- $('#product-global-panel').innerHTML='<div class="document-heading"><h3>本产品全局说明</h3><p>'+esc(group.name)+' · 全部端与页面共用</p></div>'+(!readOnly?'<label class="sr-only" for="product-global-input">本产品全局说明</label><textarea id="product-global-input" aria-label="本产品全局说明" data-auto-grow rows="14" placeholder="填写适用于本产品的全局内容…">'+esc(value)+'</textarea><small>自动暂存 · 导出 HTML 时一起保存</small>':'<div id="product-global-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value||'暂无本产品全局说明')+'</div>')+legacy.map((menu,index)=>'<section class="legacy-menu-content"><label for="legacy-menu-'+index+'">'+esc(menu.name+' · '+menu.platform)+'<small>原菜单说明 · 保留原适用范围</small></label>'+(!readOnly?'<textarea id="legacy-menu-'+index+'" data-legacy-menu="'+esc(menu.id)+'" aria-label="'+esc(menu.name+' · '+menu.platform+' 原菜单说明')+'" data-auto-grow rows="8">'+esc(model.menuGlobalContent[menu.id])+'</textarea>':'<div class="global-document-text">'+esc(model.menuGlobalContent[menu.id])+'</div>')+'</section>').join('');
+ $('#product-global-panel').innerHTML='<div class="document-heading"><h3>本产品全局说明</h3><p>'+esc(group.name)+' · 全部端与页面共用</p></div>'+(!readOnly?'<label class="sr-only" for="product-global-input">本产品全局说明</label><textarea id="product-global-input" aria-label="本产品全局说明" data-auto-grow rows="14" placeholder="填写适用于本产品的全局内容…">'+esc(value)+'</textarea><small>自动保存开启后写入当前文件，保存状态见顶部</small>':'<div id="product-global-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value||'暂无本产品全局说明')+'</div>')+legacy.map((menu,index)=>'<section class="legacy-menu-content"><label for="legacy-menu-'+index+'">'+esc(menu.name+' · '+menu.platform)+'<small>原菜单说明 · 保留原适用范围</small></label>'+(!readOnly?'<textarea id="legacy-menu-'+index+'" data-legacy-menu="'+esc(menu.id)+'" aria-label="'+esc(menu.name+' · '+menu.platform+' 原菜单说明')+'" data-auto-grow rows="8">'+esc(model.menuGlobalContent[menu.id])+'</textarea>':'<div class="global-document-text">'+esc(model.menuGlobalContent[menu.id])+'</div>')+'</section>').join('');
  const input=$('#product-global-input');if(input)input.oninput=()=>{if(readOnly)return;model.productGlobalContent[group.id]=input.value;growEditors();persist();};
  $$('[data-legacy-menu]').forEach(input=>input.oninput=()=>{if(readOnly)return;model.menuGlobalContent[input.dataset.legacyMenu]=input.value;growEditors();persist();});
  growEditors();
@@ -572,7 +573,7 @@ function renderGlobalNotes(){
   const editable=!readOnly,value=model.globalNotes[key];
   if(slot.dataset.editable!==String(editable)||!slot.firstChild){
    slot.dataset.editable=String(editable);
-   slot.innerHTML='<div class="global-note"><label class="global-note-label" for="global-'+key+'">'+label+'<span>已有内容 · 整个工作台</span></label>'+(editable?'<textarea id="global-'+key+'" data-global-note="'+key+'" data-auto-grow aria-label="'+label+'" rows="5" maxlength="12000" placeholder="填写全局内容…">'+esc(value)+'</textarea><small>自动暂存 · 导出时一起保存</small>':'<div class="global-note-text'+(value?'':' is-empty')+'">'+esc(value||'暂无全局内容')+'</div>')+'</div>';
+   slot.innerHTML='<div class="global-note"><label class="global-note-label" for="global-'+key+'">'+label+'<span>已有内容 · 整个工作台</span></label>'+(editable?'<textarea id="global-'+key+'" data-global-note="'+key+'" data-auto-grow aria-label="'+label+'" rows="5" maxlength="12000" placeholder="填写全局内容…">'+esc(value)+'</textarea><small>自动保存开启后写入当前文件，保存状态见顶部</small>':'<div class="global-note-text'+(value?'':' is-empty')+'">'+esc(value||'暂无全局内容')+'</div>')+'</div>';
    const input=slot.querySelector('textarea');if(input)input.oninput=()=>{if(readOnly)return;model.globalNotes[key]=input.value;growEditors();persist();};
   }else if(editable){const input=slot.querySelector('textarea');if(input.value!==value)input.value=value;}
   else {const text=slot.querySelector('.global-note-text');text.textContent=value||'暂无全局内容';text.classList.toggle('is-empty',!value);}
@@ -697,8 +698,93 @@ const req=()=>requirements.find(r=>r.id===page().req);
 const anchor=(id,label)=>' data-anchor="'+esc(id)+'" data-location="'+esc(page().name+' / '+label)+'"';
 const button=(id,label,cls='btn',attrs='')=>'<button type="button" id="'+id+'" class="'+cls+'" '+attrs+'>'+label+'</button>';
 function timestamp(v){return v?new Date(v).toLocaleString('zh-CN',{hour12:false}):'2026/10/15';}
-function persist(){model.updatedAt=new Date().toISOString();try{localStorage.setItem(cacheKey,JSON.stringify({model,baseModel:seed.model,cacheReview}));cacheAvailable=true;cacheLoaded=true;}catch(e){cacheAvailable=false;}updateSaveStatus();}
-function updateSaveStatus(){const el=$('#save-status');if(!el)return;if(readOnly){el.textContent='可体验中间原型，右侧说明只读。';return;}const count=Object.values(model.drafts).filter(d=>d.dirty).length;el.textContent=(cacheAvailable?(cacheLoaded?'已暂存此浏览器；':'文件内已保存说明；'):'浏览器暂存不可用；')+(count?'还有 '+count+' 页说明草稿。':'')+'交付请导出 HTML，数据、状态和说明会一起带走。';}
+/* FILE_PERSISTENCE_START */
+const authorFields=['globalContent','dataRequirements','trackingContent','globalNotes','productGlobalContent','menuGlobalContent','notes','drafts'];
+// Save times are metadata; archive old timestamp-only warnings without asking the author.
+const timestampConflicts=cacheReview.pending.filter(item=>item.path?.length===1&&item.path[0]==='updatedAt');
+cacheReview.pending=cacheReview.pending.filter(item=>!timestampConflicts.includes(item));
+cacheReview.resolved.push(...timestampConflicts.map(item=>({...item,chosen:'file',reason:'save-metadata-only',at:new Date().toISOString()})));
+let savedBaseModel=clone(seed.model);
+const authoring=value=>Object.fromEntries(authorFields.map(key=>[key,key==='globalNotes'?{directory:'',prototype:'',notes:'',...clone(value.globalNotes||{})}:clone(value[key]??(key==='notes'?[]:['globalContent','dataRequirements','trackingContent'].includes(key)?'':{}))]));
+const saveFingerprint=(value=model,review=cacheReview)=>canonical({content:authoring(value),review});
+const writerId=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+function localSaveConfig(){
+ try{const value=JSON.parse($('#workbench-local-save')?.textContent||'null');
+  if(!value||!['127.0.0.1','localhost'].includes(location.hostname)||!/^https?:$/.test(location.protocol)||!/^[a-f0-9]{64}$/.test(value.revision))return null;
+  if(![value.endpoint,value.heartbeat].every(path=>typeof path==='string'&&new URL(path,location.href).origin===location.origin))return null;
+  return value;
+ }catch{return null;}
+}
+let observedCache=authoring(model);
+try{const stored=JSON.parse(localStorage.getItem(cacheKey)||'null');if(stored?.model)observedCache=authoring(stored.model);}catch(e){}
+const fileSave={bridge:readOnly?null:localSaveConfig(),timer:null,busy:false,error:'',blocked:false,last:saveFingerprint(normalizeModel(seed.model),seed.cacheReview||{pending:[],resolved:[]}),time:''};
+function fileDirty(){return !readOnly&&saveFingerprint()!==fileSave.last;}
+function mergeOtherWindow(){
+ const latest=JSON.parse(localStorage.getItem(cacheKey)||'null');if(!latest?.model||!Array.isArray(latest.model.notes))return;
+ const remote=authoring(latest.model);if(equal(remote,observedCache))return;
+ // Independently added notes must not share an ID just because two tabs started together.
+ const baseIds=new Set(observedCache.notes.map(n=>n.id)),remoteNotes=new Map(remote.notes.map(n=>[n.id,n]));
+ let next=Math.max(model.counters.note||1,...model.notes.map(n=>n.id+1),...remote.notes.map(n=>n.id+1));
+ for(const note of model.notes){if(!baseIds.has(note.id)&&remoteNotes.has(note.id)&&!equal(note,remoteNotes.get(note.id))){const old=note.id;note.id=next++;if(focusedNote===old)focusedNote=note.id;for(const d of Object.values(model.drafts))if(d.noteId===old)d.noteId=note.id;}}
+ const combined=reconcile(observedCache,remote,authoring(model));for(const key of authorFields)model[key]=combined[key];
+ model.counters.note=Math.max(next,...model.notes.map(n=>n.id+1));
+ observedCache=remote;
+ if(cacheReview.pending.length)renderCacheReview();
+}
+function persist(){
+ model.updatedAt=new Date().toISOString();
+ if(!readOnly)try{
+  // A separate per-window rescue copy survives an old tab rewriting the legacy shared key.
+  if(!equal(authoring(model),observedCache))localStorage.setItem(cacheKey+':recovery:'+writerId,JSON.stringify({content:authoring(model),base:observedCache,at:model.updatedAt}));
+  mergeOtherWindow();localStorage.setItem(cacheKey,JSON.stringify({model,baseModel:savedBaseModel,cacheReview,writer:writerId}));
+  observedCache=authoring(model);cacheAvailable=true;cacheLoaded=true;
+ }catch(e){cacheAvailable=false;}
+ scheduleFileSave();updateSaveStatus();
+}
+function updateSaveStatus(){
+ const el=$('#save-status');if(!el)return;if(readOnly){el.textContent='可体验中间原型，右侧说明只读。';return;}
+ const dirty=fileDirty(),enabled=Boolean(fileSave.bridge);
+ const status=fileSave.error||(fileSave.busy?'正在保存…':enabled?(dirty?'正在等待自动保存':fileSave.time?'已自动保存 · '+fileSave.time:'自动保存已开启'):'离线暂存 · 未写入 HTML');
+ const indicator=$('#file-save-indicator');if(indicator){indicator.textContent=status;indicator.title=status;indicator.dataset.state=fileSave.error?'error':dirty||!enabled?'pending':'saved';}
+ const retry=$('#save-html');if(retry){retry.hidden=!fileSave.error;retry.disabled=fileSave.busy||fileSave.blocked;}
+ const count=Object.values(model.drafts).filter(d=>d.dirty).length;
+ el.textContent=status+'。'+(enabled?'填写后自动写入 HTML；刷新或换浏览器打开同一工作台可继续。':'此离线页面只保留浏览器备份；日常编辑使用已绑定文件的工作台入口。')+(count?'含 '+count+' 页说明草稿。':'')+(!cacheAvailable?'浏览器备份不可用。':'');
+}
+function scheduleFileSave(){
+ if(readOnly||!fileSave.bridge||fileSave.blocked||!fileDirty())return;
+ const content=saveFingerprint();if(fileSave.timer&&fileSave.queued===content)return;
+ fileSave.queued=content;clearTimeout(fileSave.timer);fileSave.timer=setTimeout(()=>{fileSave.timer=null;flushHTMLSave();},250);
+}
+async function flushHTMLSave(force=false){
+ clearTimeout(fileSave.timer);fileSave.timer=null;if(readOnly||!fileSave.bridge||fileSave.busy||fileSave.blocked||(!force&&!fileDirty()))return false;
+ fileSave.busy=true;updateSaveStatus();
+ try{
+  const snapshot=clone(model),review=clone(cacheReview),fingerprint=saveFingerprint(snapshot,review);
+  const response=await fetch(fileSave.bridge.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({revision:fileSave.bridge.revision,artifactId:seed.artifactId,snapshotId:seed.snapshotId,model:snapshot,cacheReview:review})});
+  const result=await response.json();if(!response.ok){if(response.status===409)fileSave.blocked=true;throw new Error(result.error||'本地保存服务暂不可用，请重新打开工作台');}
+  if(result.ok!==true||!/^[a-f0-9]{64}$/.test(result.revision))throw new Error('未收到有效保存结果，内容仍保留在页面中');
+  fileSave.bridge.revision=result.revision;savedBaseModel=clone(snapshot);fileSave.last=fingerprint;fileSave.error='';fileSave.time=new Date(result.savedAt).toLocaleTimeString('zh-CN',{hour12:false});persist();return true;
+ }catch(error){fileSave.error='保存失败：'+(error.name==='TypeError'?'本地保存服务未连接，请重新打开工作台；当前文字仍保留':error.message);return false;}
+ finally{fileSave.busy=false;updateSaveStatus();if(fileDirty()&&!fileSave.error)scheduleFileSave();}
+}
+function beginHTMLSave(){
+ if(!fileSave.bridge){toast('当前离线页未写入文件；工作台编辑入口会自动保存，无需选择文件。');return;}
+ if(fileSave.blocked){toast(fileSave.error);return;}
+ fileSave.error='';return flushHTMLSave(true);
+}
+function installHTMLPersistence(){
+ if(readOnly)return;
+ const style=document.createElement('style');style.textContent='#file-save-indicator[data-state="pending"]{color:#a84b18!important}#file-save-indicator[data-state="error"]{color:#b42318!important}@media(max-width:1199px){.appbar{height:auto;min-height:56px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px;row-gap:5px}.appbar #file-save-indicator{order:4;flex:1 0 100%;max-width:none!important;font-size:11px!important}}';document.head.append(style);
+ const actions=$('.app-actions'),copy=$('#save-work');
+ if(fileSave.bridge){const retry=document.createElement('button');retry.type='button';retry.id='save-html';retry.className='btn primary';retry.textContent='重试保存';retry.onclick=beginHTMLSave;actions.insertBefore(retry,copy);}
+ const status=document.createElement('span');status.id='file-save-indicator';status.setAttribute('role','status');status.style.cssText='font-size:12px;line-height:1.4;max-width:210px;min-width:0;flex:0 1 210px;overflow-wrap:anywhere;color:var(--muted);';$('.appbar').insertBefore(status,actions);
+ window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();beginHTMLSave();}});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)flushHTMLSave();});
+ document.addEventListener('focusout',e=>{if(e.target.matches('textarea'))flushHTMLSave();});
+ if(fileSave.bridge){const heartbeat=setInterval(()=>{fetch(fileSave.bridge.heartbeat).catch(()=>{});},30000);window.addEventListener('pagehide',()=>clearInterval(heartbeat),{once:true});}
+ updateSaveStatus();scheduleFileSave();
+}
+/* FILE_PERSISTENCE_END */
 function toast(message,undo=false){clearTimeout(toastTimer);const el=$('#toast');el.innerHTML='<span>'+esc(message)+'</span>'+(undo?'<button type="button" id="undo-delete">撤销</button>':'');el.hidden=false;
  if(undo)$('#undo-delete').onclick=()=>{if(undoNote){model.notes.push(undoNote);model.notes.sort((a,b)=>a.id-b.id);undoNote=null;persist();renderAll();toast('说明已恢复');}};
  toastTimer=setTimeout(()=>{el.hidden=true;undoNote=null;},undo?10000:4200);
@@ -897,7 +983,7 @@ function renderAll(){
   $('#current-product').textContent=projectTitle;$('#current-platform').textContent='全局';$('#current-path').textContent='适用于所有需求、产品、端和页面';
   $('#page-title').textContent='全局描述';
   $('#sidebar-title').textContent='研发说明';$('#sidebar-description').textContent='这份内容由整个工作台共用。';$('#scope-name').textContent='所有需求 · 所有产品与端 · 所有页面';
-  $('#editor-slot').replaceChildren();$('#notes-slot').innerHTML='<div class="page-rule"><strong>全局描述</strong>'+(readOnly?'在中间查看完整正文。':'直接在中间填写，输入自动暂存。导出的 HTML 会保留完整正文，供研发查看。')+'</div>';
+  $('#editor-slot').replaceChildren();$('#notes-slot').innerHTML='<div class="page-rule"><strong>全局描述</strong>'+(readOnly?'在中间查看完整正文。':'直接在中间填写，保存状态见顶部；下次从「打开工作台」入口继续编写。')+'</div>';
   renderDirectory();renderGlobalContent();paintPins();updateSaveStatus();return;
  }
  if(productGlobal){
@@ -910,7 +996,7 @@ function renderAll(){
   const doc=requirementTexts[model.workspaceView];
   $('#current-product').textContent=projectTitle;$('#current-platform').textContent='需求说明';$('#page-title').textContent=doc.name;$('#current-path').textContent='适用于整个工作台';
   $('#sidebar-description').textContent='这份文字由整个工作台共用。';$('#scope-name').textContent='所有需求 · 所有产品与端 · 所有页面';
-  $('#editor-slot').replaceChildren();$('#notes-slot').innerHTML='<div class="page-rule"><strong>'+doc.name+'</strong>在中间'+(readOnly?'查看完整正文。':'直接填写，内容自动暂存。')+'</div>';
+  $('#editor-slot').replaceChildren();$('#notes-slot').innerHTML='<div class="page-rule"><strong>'+doc.name+'</strong>在中间'+(readOnly?'查看完整正文。':'直接填写，自动保存开启后写入当前文件。')+'</div>';
   renderDirectory();renderRequirementContent();paintPins();updateSaveStatus();return;
  }
  const currentScope=pageScope(model.activePage);
@@ -990,7 +1076,7 @@ function refreshNoteInPlace(id,focusEditor=false){
 function captureDraft(){if(readOnly)return;const d=draft();if(!d)return;d.dirty=true;d.values={body:$('#note-body').value};growEditors();persist();renderDirectory();}
 function saveNote(e){e.preventDefault();if(readOnly)return;const d=draft();if(!d)return;const values={body:$('#note-body').value.trim()};if(!values.body){toast('请先写一句话');$('#note-body').focus();return;}
  const record={id:d.noteId||model.counters.note++,requirement:page().req,page:model.activePage,scene:d.scene,anchor:d.anchor,location:d.location,context:d.context,...values};
- if(d.noteId)model.notes=model.notes.map(n=>n.id===d.noteId?record:n);else model.notes.push(record);delete model.drafts[model.activePage];focusedNote=record.id;persist();refreshNoteInPlace(record.id);toast('说明 #'+pad(record.id)+' 已保存，导出 HTML 后即可交付');
+ if(d.noteId)model.notes=model.notes.map(n=>n.id===d.noteId?record:n);else model.notes.push(record);delete model.drafts[model.activePage];focusedNote=record.id;persist();refreshNoteInPlace(record.id);toast('说明 #'+pad(record.id)+(fileSave.bridge?' 已记录，正在自动保存':' 已暂存；当前离线页未写入文件'));flushHTMLSave();
 }
 function activateNote(e){
  if(e.type==='keydown'&&!['Enter',' '].includes(e.key))return false;
@@ -1036,7 +1122,7 @@ function exportReady(){if(readOnly)return false;if(cacheReview.pending.length){t
  const missing=model.notes.filter(n=>!anchorKnown(n));if(missing.length){toast('请先重新定位或删除失效说明：'+missing.map(n=>'#'+pad(n.id)).join('、'));return false;}return true;}
 function saveWorkHTML(){if(readOnly)return;writeHTMLSnapshot(false);}
 function exportHTML(){if(!exportReady())return;writeHTMLSnapshot(true);}
-function writeHTMLSnapshot(viewer){stashPosition();const copy=originalMarkup.cloneNode(true),now=new Date(),snapshot=clone(model);if(viewer)snapshot.drafts={};snapshot.updatedAt=now.toISOString();
+function writeHTMLSnapshot(viewer){stashPosition();const copy=originalMarkup.cloneNode(true),now=new Date(),snapshot=clone(model);copy.querySelector('#workbench-local-save')?.remove();if(viewer)snapshot.drafts={};snapshot.updatedAt=now.toISOString();
  const payload={...clone(seed),cacheReview:clone(cacheReview),schemaVersion:3,projectTitle,navigation:clone(navigation),readOnly:viewer,artifactId:seed.artifactId,snapshotId:(viewer?'snapshot-':'work-')+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),version:seed.version,savedAt:now.toISOString(),model:snapshot};
  copy.querySelector('#prototype-data').textContent=JSON.stringify(payload).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');copy.querySelector('#app').textContent='';copy.querySelector('title').textContent=projectTitle+(viewer?' · 只读预览':' · PRD 原型工作台');
  download('<!doctype html>\n'+copy.outerHTML,exportStem+(viewer?'-只读预览-':'-可编辑工作副本-')+now.getFullYear()+pad(now.getMonth()+1)+pad(now.getDate())+'-'+pad(now.getHours())+pad(now.getMinutes())+'.html','text/html;charset=utf-8');toast(viewer?'已导出只读 HTML：可体验原型和查看说明，不能标注修改':'已保存可编辑副本，PRD、原型数据和说明草稿都在文件内');}
@@ -1047,8 +1133,8 @@ function exportMarkdown(){if(!exportReady())return;const lines=['# '+projectTitl
  menus.forEach(menu=>{if(model.menuGlobalContent[menu.id])lines.push('## '+menu.product+' · '+menu.platform+' / '+menu.name+' · 本菜单全局说明','',model.menuGlobalContent[menu.id],'');});
  requirements.forEach(r=>{lines.push('## '+r.code+' '+r.name,'',r.scope,r.boundary,'');Object.entries(pages).filter(([id,p])=>p.req===r.id).forEach(([id,p])=>{lines.push('### '+pageIdentity(id),'');model.notes.filter(n=>n.page===id).forEach(n=>lines.push('#### #'+pad(n.id),'',n.body,'','- 位置：'+n.location,'- 页面场景：'+p.states[n.scene],'- 定位标识：'+n.requirement+' / '+n.page+' / '+n.scene+' / '+n.anchor,''));});});download(lines.join('\n'),exportStem+'-PRD.md','text/markdown;charset=utf-8');toast('已导出 PRD 与全部页面说明');}
 window.addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented||pickingTarget)return;if($('#prototype').contains(e.target))business.escape?.();});
-window.addEventListener('beforeunload',e=>{stashPosition();persist();if(!cacheAvailable&&Object.values(model.drafts).some(d=>d.dirty)){e.preventDefault();e.returnValue='';}});
-shell();installResponsiveWorkspace();renderAll();
+window.addEventListener('beforeunload',e=>{stashPosition();persist();if(fileDirty()||fileSave.busy){e.preventDefault();e.returnValue='';}});
+shell();installHTMLPersistence();installResponsiveWorkspace();renderAll();
 })();
 
 </script>

@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 from workbench_source import assemble, payload, with_payload
+from prepare_workbench import prepare
 
 
 def main():
@@ -22,6 +23,7 @@ def main():
     parser.add_argument('--config', type=Path, help='Project payload JSON with requirements, pages, navigation and model')
     parser.add_argument('--adapter', type=Path, help='Business adapter JavaScript, inlined into the single HTML')
     parser.add_argument('--style', type=Path, help='Business CSS to inline')
+    parser.add_argument('--html-only', action='store_true', help='Skip the local editor launcher for isolated HTML fixtures')
     args = parser.parse_args()
     title = args.title.strip()
     if not title or len(title) > 100:
@@ -61,8 +63,9 @@ def main():
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open('x', encoding='utf-8') as stream:
         stream.write(source)
-    print(json.dumps({'file': str(target), 'projectTitle': title, 'readOnly': False,
-                      'next': 'Configure pages and the business adapter for the requested scope. Explicitly supplied text is retained; unspecified text stays empty.'}, ensure_ascii=False))
+    entry = {} if args.html_only else prepare(target)
+    print(json.dumps({'editEntry': entry.get('editEntry'), 'file': str(target), 'launcher': entry.get('launcher'), 'projectTitle': title, 'readOnly': False,
+                      'next': 'Use editEntry for everyday editing and automatic file saves. The file field is the bound storage target; do not ask the author to select it. Configure the requested pages and adapter; unspecified business text stays empty.'}, ensure_ascii=False))
 
 
 if __name__ == '__main__':
