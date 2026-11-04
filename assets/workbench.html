@@ -231,8 +231,16 @@
   .workspace{--directory-width:0px;--notes-width:0px;position:relative;display:grid;grid-template-columns:var(--directory-width) minmax(0,1fr) var(--notes-width);grid-template-rows:minmax(0,1fr);flex:1;min-height:0;min-width:0;overflow:hidden;isolation:isolate}
   .workspace[data-layout=wide]{--workbench-side-width:clamp(220px,18vw,280px)}
   .workspace[data-layout=wide][data-directory-open=true]{--directory-width:var(--workbench-side-width)}
-  .workspace[data-layout=wide][data-notes-open=true]{--notes-width:var(--workbench-side-width)}
-  .workspace[data-layout=middle][data-notes-open=true]{--notes-width:280px}
+  .workspace[data-layout=wide][data-notes-open=true],.workspace[data-layout=middle][data-notes-open=true]{--notes-width:var(--notes-panel-width,280px)}
+  .notes-resizer{position:absolute;right:calc(var(--notes-panel-width,280px) - 6px);top:0;bottom:0;width:12px;z-index:45;cursor:col-resize;touch-action:none;user-select:none;outline-offset:-3px}
+  .notes-resizer:before{content:"";position:absolute;left:4px;top:0;bottom:0;width:3px;background:transparent;transition:background .12s}
+  .notes-resizer:after{content:"";position:absolute;left:3px;top:50%;width:5px;height:38px;margin-top:-19px;border-radius:4px;background:#a7bbb0;box-shadow:0 0 0 2px var(--paper)}
+  .notes-resizer:hover:before,.notes-resizer:focus-visible:before,.is-resizing .notes-resizer:before{background:var(--green)}
+  .workspace.is-resizing{user-select:none;cursor:col-resize}.workspace.is-resizing:after{content:"";position:absolute;inset:0;z-index:46;cursor:col-resize}.is-resizing .notes-resizer{z-index:47}
+  .prd-writing-guide{font-size:12px;line-height:1.75;color:var(--muted);margin:0 0 12px;border-bottom:1px solid var(--line);padding:0 0 10px}
+  .prd-writing-guide summary{cursor:pointer;width:fit-content;color:var(--green);padding:4px 0;font-weight:500}.prd-writing-guide summary:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+  .prd-writing-guide dl{margin:8px 0 0;display:grid;gap:4px 10px;grid-template-columns:max-content minmax(0,1fr)}.prd-writing-guide dt{font-weight:550;color:var(--ink)}.prd-writing-guide dd{margin:0;overflow-wrap:anywhere}.prd-writing-guide p{margin:8px 0 0;font-size:11px}
+  #notes-writing-guide{padding-top:12px}#notes-writing-guide .prd-writing-guide dl{display:block}#notes-writing-guide .prd-writing-guide dt{margin-top:8px}
   .directory{grid-column:1;grid-row:1;display:flex;flex-direction:column;position:relative;min-height:0;min-width:0;overflow:hidden;padding:0;border-right:1px solid var(--line);border-bottom:0;background:#f9faf7}
   .directory-head{display:block!important;padding:20px 18px 16px!important;position:relative;flex:none}.directory-head .eyebrow{font-size:10px;margin:0 0 8px}.directory-head h2{font-size:16px}.directory-head p{font-size:11px;margin-top:7px}
   #directory-items{display:block;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 10px 16px}.requirement-docs{padding:14px 0}.product-group{padding:16px 0}.product-heading{font-size:12px}.product-children{margin-left:5px}
@@ -245,7 +253,7 @@
   .stage{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;align-self:stretch;width:100%;max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:var(--faint);overflow:hidden}
   .preview-toolbar{position:relative;display:flex;align-items:center;flex:none;flex-wrap:wrap;gap:5px 12px;min-height:41px;padding:5px 12px;border-bottom:1px solid var(--line);border-radius:0;background:var(--paper)}
   .preview-toolbar .scene-tabs{flex:0 1 auto;min-width:0;gap:14px;flex-wrap:wrap}.preview-toolbar .scene-tabs button{height:29px;font-size:11px}
-  .preview-toolbar .annotation-tools{display:flex;align-items:center;flex:0 1 auto;flex-wrap:nowrap;width:auto;min-width:0;margin-left:auto;gap:6px;padding:0;border:0}.preview-toolbar .annotation-tools select{height:28px;font-size:10px;padding:4px 20px 4px 7px;min-width:0;max-width:none}
+  .preview-toolbar .annotation-tools{display:flex;align-items:center;flex:0 1 auto;flex-wrap:wrap;width:auto;min-width:0;margin-left:auto;gap:6px;padding:0;border:0}.preview-toolbar .annotation-tools select{height:28px;font-size:10px;padding:4px 20px 4px 7px;min-width:0;max-width:none}
   .preview-toolbar #canvas-zoom{flex:none;width:115px}.preview-toolbar #locate-note{width:126px}.preview-toolbar #pick-note{font-size:11px;min-height:28px;padding:4px 7px}.preview-toolbar #reset-demo{width:24px;min-height:28px;font-size:0;padding:0}.preview-toolbar #reset-demo:before{content:"↻";font-size:20px;line-height:1}
   .preview-toolbar .canvas-zoom-control>span{display:none}
   #prototype-viewport{display:block;flex:1;min-height:0;min-width:0;width:100%;max-width:none;max-height:none;padding:10px;overflow:auto;border-radius:0;background:#eef1ec;scrollbar-gutter:auto;overscroll-behavior:contain}
@@ -257,7 +265,7 @@
   .workspace-scrim{position:absolute;inset:0;z-index:30;background:#14291e38;backdrop-filter:blur(1px);border:0;border-radius:0;padding:0}
   .workspace [data-overlay=true]{position:absolute;top:0;bottom:0;z-index:40;box-shadow:0 0 45px #15291d22}
   .workspace .directory[data-overlay=true]{left:0;right:auto;width:min(310px,calc(100vw - 38px));grid-column:auto;border-right:1px solid var(--line)}
-  .workspace .sidebar[data-overlay=true]{right:0;left:auto;width:min(390px,calc(100vw - 28px));grid-column:auto;border-left:1px solid var(--line)}
+  .workspace .sidebar[data-overlay=true]{right:0;left:auto;width:var(--notes-panel-width,min(390px,calc(100vw - 28px)));grid-column:auto;border-left:1px solid var(--line)}
   .workspace [data-overlay=true] .workspace-panel-close{display:grid}
   .workspace [data-overlay=true] .directory-head,.workspace [data-overlay=true] .sidebar-head{padding-right:55px!important}
   .workspace [data-overlay=true] #note-count{margin-left:6px}
@@ -281,7 +289,7 @@
   .preview-header .preview-heading{grid-template-columns:minmax(0,1fr) minmax(0,47%);column-gap:8px}.preview-header #current-path{font-size:9px}
   #prototype-viewport{padding:7px}.workspace-options{width:218px}.global-document textarea{min-height:300px}
 }
-@media print{.workspace-switches,#workspace-tools-toggle,.workspace-panel-close,.workspace-scrim{display:none!important}}
+@media print{.workspace-switches,#workspace-tools-toggle,.workspace-panel-close,.workspace-scrim,.notes-resizer,.prd-writing-guide{display:none!important}}
 
 </style>
 </head>
@@ -421,6 +429,18 @@ const requirementTexts={
  data:{name:'上线后数据需求',field:'dataRequirements',input:'data-requirements',hint:'填写需求上线后想看哪些数据、统计范围和观察时间…'},
  tracking:{name:'埋点说明',field:'trackingContent',input:'tracking-content',hint:'有埋点时，在这里填写相关说明；没有可以留空…'}
 };
+// Optional reading prompts are tool UI, never inserted into the saved PRD.
+function prdWritingGuide(kind){
+ if(readOnly)return '';
+ const sections={
+  global:[['背景与目标','谁在什么场景遇到什么问题，本次希望改善什么。'],['本次范围','涉及的需求、产品、端和页面；本次做什么、暂不做什么。多个需求按名称分段。'],['整体流程','入口、主要步骤、分支、完成与返回路径；跨产品或 CMS 的配合关系。'],['共用规则','整个需求共用的规则写在这里；产品规则放本产品全局说明，局部交互放右侧说明。'],['验收依据','按核心流程写清前置条件、操作和预期结果，说明怎样判断完成。'],['按需补充','上线依赖与先后安排、待确认问题、重要变更；有明确要求时再写兼容性或性能约束。']],
+  product:[['适用范围','本产品涉及的端和页面，共用规则适用于哪些用户与场景。'],['共用规则','角色权限、数据来源与更新方式、跨页面状态；单个元素的行为写在对应页面。'],['异常与验收','共用的空数据、失败、中断处理，以及可检查的预期结果。'],['依赖与未决项','与其他产品或系统的关系；尚未确认的规则单独注明。']],
+  data:[['观察目标','上线后要判断什么变化，关联哪项需求或目标。'],['统计口径','指标的计算方式、统计对象、产品与端、时间范围、去重方式。'],['对比与判断','按已确认内容填写基线、目标或判断标准，不确定的留空。'],['数据来源','从哪个报表或事件获得数据，何时观察；需要采集的事件放埋点说明。']],
+  tracking:[['对应需求','这个事件支持哪个数据观察目标，适用哪些产品、端和页面。'],['触发时机','何时上报，哪些条件不报，重复操作和失败如何区分。'],['事件与参数','填写已确认的事件名、参数含义、取值和必要标识；有隐私约束时说明。'],['核验方法','按什么操作验证事件、次数和参数正确；没有埋点可以留空。']],
+  note:[['触发与结果','什么前提下，用户做什么，页面或数据发生什么变化。'],['规则与边界','默认值、校验、权限，以及相关的空数据、失败、重复操作或中断处理。'],['验收条件','写成可检查的场景、操作和预期结果；只写当前元素相关的内容。']]
+ };
+ return '<details class="prd-writing-guide" open><summary>填写参考</summary><dl>'+sections[kind].map(([title,text])=>'<dt>'+title+'</dt><dd>'+text+'</dd>').join('')+'</dl><p>按需要填写已确认内容；参考不会自动写入正文，未确定的规则留空或注明待确认。</p></details>';
+}
 function normalizeRequirementTexts(result){
  for(const key of ['globalContent','dataRequirements','trackingContent'])result[key]=typeof result[key]==='string'?result[key]:'';
  result.requirementTextScroll=Object.fromEntries(Object.entries(result.requirementTextScroll||{}).filter(([key,top])=>requirementTexts[key]&&Number.isFinite(top)&&top>=0));
@@ -459,7 +479,7 @@ function renderRequirementDirectory(){
 }
 function renderRequirementContent(){
  const doc=requirementTexts[model.workspaceView],value=model[doc.field];
- $('#requirement-panel').innerHTML=!readOnly?'<label class="sr-only" for="'+doc.input+'-input">'+doc.name+'</label><textarea id="'+doc.input+'-input" aria-label="'+doc.name+'" data-auto-grow rows="14" placeholder="'+doc.hint+'">'+esc(value)+'</textarea>':'<div id="'+doc.input+'-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value||'尚未填写')+'</div>';
+ $('#requirement-panel').innerHTML=!readOnly?prdWritingGuide(model.workspaceView)+'<label class="sr-only" for="'+doc.input+'-input">'+doc.name+'</label><textarea id="'+doc.input+'-input" aria-label="'+doc.name+'" data-auto-grow rows="14" placeholder="'+doc.hint+'">'+esc(value)+'</textarea>':'<div id="'+doc.input+'-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value||'尚未填写')+'</div>';
  const input=$('#'+doc.input+'-input');if(input)input.oninput=()=>{if(readOnly)return;model[doc.field]=input.value;growEditors();persist();};
  growEditors();
 }
@@ -553,7 +573,7 @@ const isRequirementView=()=>Object.hasOwn(requirementTexts,model.workspaceView);
 const isDocumentView=()=>isGlobalView()||isProductView()||isRequirementView();
 function renderGlobalContent(){
  const editable=!readOnly,value=model.globalContent;
- $('#global-content-panel').innerHTML=editable?'<label class="sr-only" for="global-content-input">全局描述</label><textarea id="global-content-input" aria-label="全局描述" data-auto-grow rows="14">'+esc(value)+'</textarea><small>自动保存开启后，输入会写入当前文件；保存状态见顶部。</small>':'<div id="global-content-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value)+'</div>';
+ $('#global-content-panel').innerHTML=editable?prdWritingGuide('global')+'<label class="sr-only" for="global-content-input">全局描述</label><textarea id="global-content-input" aria-label="全局描述" data-auto-grow rows="14">'+esc(value)+'</textarea><small>自动保存开启后，输入会写入当前文件；保存状态见顶部。</small>':'<div id="global-content-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value)+'</div>';
  const input=$('#global-content-input');if(input)input.oninput=()=>{if(readOnly)return;model.globalContent=input.value;growEditors();persist();};
  // Keep prior workspace-wide text accessible without copying it into menu documents.
  for(const key of ['prototype','notes']){if(model.globalNotes[key])$('#global-content-panel').insertAdjacentHTML('beforeend','<section data-global-slot="'+key+'"></section>');}
@@ -564,6 +584,7 @@ function renderProductContent(){
  const legacy=menus.filter(menu=>menu.productId===group.id&&model.menuGlobalContent[menu.id]);
  $('#product-global-panel').innerHTML='<div class="document-heading"><h3>本产品全局说明</h3><p>'+esc(group.name)+' · 全部端与页面共用</p></div>'+(!readOnly?'<label class="sr-only" for="product-global-input">本产品全局说明</label><textarea id="product-global-input" aria-label="本产品全局说明" data-auto-grow rows="14" placeholder="填写适用于本产品的全局内容…">'+esc(value)+'</textarea><small>自动保存开启后写入当前文件，保存状态见顶部</small>':'<div id="product-global-text" class="global-document-text'+(value?'':' is-empty')+'">'+esc(value||'暂无本产品全局说明')+'</div>')+legacy.map((menu,index)=>'<section class="legacy-menu-content"><label for="legacy-menu-'+index+'">'+esc(menu.name+' · '+menu.platform)+'<small>原菜单说明 · 保留原适用范围</small></label>'+(!readOnly?'<textarea id="legacy-menu-'+index+'" data-legacy-menu="'+esc(menu.id)+'" aria-label="'+esc(menu.name+' · '+menu.platform+' 原菜单说明')+'" data-auto-grow rows="8">'+esc(model.menuGlobalContent[menu.id])+'</textarea>':'<div class="global-document-text">'+esc(model.menuGlobalContent[menu.id])+'</div>')+'</section>').join('');
  const input=$('#product-global-input');if(input)input.oninput=()=>{if(readOnly)return;model.productGlobalContent[group.id]=input.value;growEditors();persist();};
+ if(input)input.insertAdjacentHTML('beforebegin',prdWritingGuide('product'));
  $$('[data-legacy-menu]').forEach(input=>input.oninput=()=>{if(readOnly)return;model.menuGlobalContent[input.dataset.legacyMenu]=input.value;growEditors();persist();});
  growEditors();
 }
@@ -862,8 +883,64 @@ function changeScene(next){focusedNote=null;business.changeScene(next);persist()
 // Tool layout only: changing panels never rerenders or mutates the business model.
 const workspaceDefaults={wide:{directory:true,notes:true},middle:{directory:false,notes:true},compact:{directory:false,notes:false}};
 let workspaceLayout='',workspaceOverlay=null,workspaceToolsOpen=false;
+const notesWidthKey='prototype-notes-width:'+seed.artifactId;
+let notesWidthPreference=null,notesResizeGesture=null,notesResizeFrame=0;
+try{const saved=Number(localStorage.getItem(notesWidthKey));if(Number.isFinite(saved)&&saved>=220&&saved<=10000)notesWidthPreference=saved;}catch(e){}
 function workspaceLayoutName(){return window.innerWidth>=1280?'wide':window.innerWidth>=900?'middle':'compact';}
 function workspacePanelState(){return workspaceDefaults[workspaceLayout||workspaceLayoutName()];}
+function notesWidthLimits(){
+ const total=$('.workspace').clientWidth||window.innerWidth,compact=workspaceLayout==='compact';
+ const directory=workspaceLayout==='wide'&&workspacePanelState().directory?$('.directory').getBoundingClientRect().width:0;
+ const max=compact?total-28:Math.min(total-directory-320,Math.floor(total*.7));
+ return {min:Math.min(220,max),max,defaultWidth:compact?Math.min(390,max):workspaceLayout==='wide'?Math.min(280,Math.max(220,window.innerWidth*.18)):280};
+}
+function syncNotesWidth(){
+ const workspace=$('.workspace'),handle=$('#notes-resizer');if(!handle)return;
+ const limits=notesWidthLimits(),width=Math.round(Math.min(limits.max,Math.max(limits.min,notesWidthPreference??limits.defaultWidth)));
+ if(workspace.style.getPropertyValue('--notes-panel-width')!==width+'px')workspace.style.setProperty('--notes-panel-width',width+'px');
+ handle.hidden=!workspacePanelState().notes||workspaceOverlay==='directory';
+ handle.setAttribute('aria-valuemin',String(limits.min));handle.setAttribute('aria-valuemax',String(limits.max));handle.setAttribute('aria-valuenow',String(width));handle.setAttribute('aria-valuetext',width+' 像素');
+ scheduleCanvasLayout();schedulePaint();
+ if(!notesResizeFrame)notesResizeFrame=requestAnimationFrame(()=>{notesResizeFrame=0;growEditors();});
+}
+function rememberNotesWidth(){try{if(notesWidthPreference===null)localStorage.removeItem(notesWidthKey);else localStorage.setItem(notesWidthKey,String(notesWidthPreference));}catch(e){}}
+function finishNotesResize(commit){
+ const gesture=notesResizeGesture;if(!gesture)return;notesResizeGesture=null;
+ $('.workspace').classList.remove('is-resizing');
+ const handle=$('#notes-resizer');if(handle.hasPointerCapture?.(gesture.id))handle.releasePointerCapture(gesture.id);
+ if(!commit||gesture.raw<120)notesWidthPreference=gesture.preference;
+ if(commit&&gesture.raw<120){workspacePanelState().notes=false;syncWorkspacePanels();$('#workspace-notes-toggle').focus({preventScroll:true});}
+ else syncNotesWidth();
+ if(commit)rememberNotesWidth();
+}
+function installNotesResizer(){
+ const handle=document.createElement('div');handle.id='notes-resizer';handle.className='notes-resizer';handle.tabIndex=0;
+ handle.setAttribute('role','separator');handle.setAttribute('aria-orientation','vertical');handle.setAttribute('aria-controls','workspace-notes');handle.setAttribute('aria-label','调整研发说明宽度');
+ handle.title='左右拖动调宽；拖到右边缘收起；双击恢复默认宽度。也可用左右方向键调整。';$('.workspace').append(handle);
+ handle.addEventListener('pointerdown',e=>{
+  if(e.button!==0||handle.hidden||notesResizeGesture)return;
+  e.preventDefault();e.stopPropagation();handle.focus({preventScroll:true});
+  const width=Number(handle.getAttribute('aria-valuenow'));
+  notesResizeGesture={id:e.pointerId,x:e.clientX,width,raw:width,preference:notesWidthPreference};$('.workspace').classList.add('is-resizing');
+  try{handle.setPointerCapture?.(e.pointerId);}catch(error){}
+ });
+ document.addEventListener('pointermove',e=>{
+  const gesture=notesResizeGesture;if(!gesture||gesture.id!==e.pointerId)return;e.preventDefault();
+  gesture.raw=gesture.width+gesture.x-e.clientX;const limits=notesWidthLimits();notesWidthPreference=Math.round(Math.min(limits.max,Math.max(limits.min,gesture.raw)));syncNotesWidth();
+ },{passive:false});
+ document.addEventListener('pointerup',e=>{if(notesResizeGesture?.id===e.pointerId&&notesResizeGesture)finishNotesResize(true);});
+ document.addEventListener('pointercancel',e=>{if(notesResizeGesture?.id===e.pointerId&&notesResizeGesture)finishNotesResize(false);});
+ handle.addEventListener('lostpointercapture',()=>finishNotesResize(false));window.addEventListener('blur',()=>finishNotesResize(false));
+ handle.addEventListener('dblclick',()=>{notesWidthPreference=null;rememberNotesWidth();syncNotesWidth();});
+ handle.addEventListener('keydown',e=>{
+  if(notesResizeGesture||!['ArrowLeft','ArrowRight','Home','End','Enter'].includes(e.key))return;
+  e.preventDefault();e.stopPropagation();
+  if(e.key==='Enter'){toggleWorkspacePanel('notes');$('#workspace-notes-toggle').focus({preventScroll:true});return;}
+  const limits=notesWidthLimits(),width=Number(handle.getAttribute('aria-valuenow')),step=e.shiftKey?64:24;
+  notesWidthPreference=e.key==='Home'?limits.min:e.key==='End'?limits.max:Math.min(limits.max,Math.max(limits.min,width+(e.key==='ArrowLeft'?step:-step)));
+  rememberNotesWidth();syncNotesWidth();
+ });
+}
 function closeWorkspaceOverlay(restoreFocus=true){
  if(!workspaceOverlay)return;
  const name=workspaceOverlay;workspacePanelState()[name]=false;syncWorkspacePanels();
@@ -876,7 +953,7 @@ function openWorkspaceNotes(focusPanel=true){
 }
 function syncWorkspacePanels(){
  const next=workspaceLayoutName(),layoutChanged=next!==workspaceLayout;
- if(layoutChanged){workspaceLayout=next;workspaceToolsOpen=false;}
+ if(layoutChanged){workspaceLayout=next;workspaceToolsOpen=false;if(notesResizeGesture)finishNotesResize(false);}
  const state=workspacePanelState(),workspace=$('.workspace'),directory=$('.directory'),sidebar=$('.sidebar'),preview=$('#preview-pane');
  if(!workspace)return;
  const directoryOverlay=workspaceLayout!=='wide'&&state.directory,notesOverlay=workspaceLayout==='compact'&&state.notes;
@@ -895,6 +972,7 @@ function syncWorkspacePanels(){
  if(!toolsCompact)workspaceToolsOpen=false;
  $('#workspace-tools').classList.toggle('is-open',workspaceToolsOpen);
  $('#workspace-tools-toggle').setAttribute('aria-expanded',String(workspaceToolsOpen));
+ syncNotesWidth();
  if(layoutChanged)requestAnimationFrame(growEditors);
  scheduleCanvasLayout();schedulePaint();
 }
@@ -916,17 +994,20 @@ function installResponsiveWorkspace(){
   $('#workspace-'+name+'-toggle').onclick=()=>toggleWorkspacePanel(name);
  }
  const scrim=document.createElement('button');scrim.type='button';scrim.id='workspace-scrim';scrim.className='workspace-scrim';scrim.hidden=true;scrim.tabIndex=-1;scrim.setAttribute('aria-label','关闭展开的面板');scrim.onclick=()=>closeWorkspaceOverlay();$('.workspace').append(scrim);
+ installNotesResizer();
+ if(!readOnly){const guide=document.createElement('div');guide.id='notes-writing-guide';guide.innerHTML=prdWritingGuide('note');$('#notes-scroll').prepend(guide);}
  $('#workspace-tools-toggle').onclick=()=>{workspaceToolsOpen=!workspaceToolsOpen;syncWorkspacePanels();};
  $('#reset-demo').title='重置演示';$('#reset-demo').setAttribute('aria-label','重置演示');
  document.addEventListener('pointerdown',e=>{if(workspaceToolsOpen&&!actions.contains(e.target)){workspaceToolsOpen=false;syncWorkspacePanels();}},true);
  options.addEventListener('click',e=>{if(e.target.closest('#save-work,#export-html,#export-md')){workspaceToolsOpen=false;syncWorkspacePanels();}});
  directory.addEventListener('click',e=>{if(!e.target.closest('#global-menu,[data-prd-document],[data-page],[data-product-global]')||workspaceOverlay!=='directory')return;queueMicrotask(()=>{closeWorkspaceOverlay(false);$('#page-title').tabIndex=-1;$('#page-title').focus({preventScroll:true});});});
  document.addEventListener('keydown',e=>{
+  if(notesResizeGesture&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();finishNotesResize(false);return;}
   if(e.defaultPrevented||pickingTarget)return;
   if(e.key==='Escape'&&(workspaceOverlay||workspaceToolsOpen)){e.preventDefault();e.stopImmediatePropagation();if(workspaceToolsOpen){workspaceToolsOpen=false;syncWorkspacePanels();$('#workspace-tools-toggle').focus();}else closeWorkspaceOverlay();return;}
   if(e.key!=='Tab'||!workspaceOverlay)return;
   const panel=workspaceOverlay==='directory'?directory:sidebar;
-  const focusable=$$('button,input,select,textarea,a[href],[tabindex]',panel).filter(el=>!el.disabled&&el.tabIndex>=0&&el.getClientRects().length&&!el.closest('[hidden]'));
+  const focusable=$$('button,input,select,textarea,summary,a[href],[tabindex]',panel).filter(el=>!el.disabled&&el.tabIndex>=0&&el.getClientRects().length&&!el.closest('[hidden]'));
   if(!focusable.length)return;const first=focusable[0],last=focusable.at(-1);
   if(e.shiftKey&&(document.activeElement===first||!panel.contains(document.activeElement))){e.preventDefault();last.focus();}
   else if(!e.shiftKey&&(document.activeElement===last||!panel.contains(document.activeElement))){e.preventDefault();first.focus();}
@@ -973,6 +1054,7 @@ function renderDirectory(){
 }
 function renderAll(){
  $('#preview-pane').classList.toggle('workspace-document',isDocumentView());
+ if($('#notes-writing-guide'))$('#notes-writing-guide').hidden=isDocumentView();
  renderCacheReview();
  const global=isGlobalView(),productGlobal=isProductView(),requirementView=isRequirementView(),documentView=isDocumentView();$('#requirement-panel').hidden=!requirementView;if(!requirementView)$('#requirement-panel').replaceChildren();$('#global-content-panel').hidden=!global;$('#product-global-panel').hidden=!productGlobal;$('.stage').hidden=documentView;
  if(!global)$('#global-content-panel').replaceChildren();if(!productGlobal)$('#product-global-panel').replaceChildren();

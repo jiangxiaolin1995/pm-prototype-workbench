@@ -7,6 +7,9 @@ import threading
 import unittest
 import os
 import signal
+import shutil
+import subprocess
+import sys
 import time
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -118,6 +121,33 @@ class LocalSaveTests(unittest.TestCase):
         self.assertIn("'中文 空格 工作台.html'", Path(result['launcher']).read_text())
         self.assertEqual(self.file.read_text(), SOURCE)
         self.assertEqual(Path(result['helper']).read_bytes(), Path(service.__file__).read_bytes())
+
+    @unittest.skipUnless(sys.platform == 'darwin' and shutil.which('osacompile'), 'macOS app packaging')
+    def test_native_app_remains_valid_after_adding_launcher_and_repreparing(self):
+        from prepare_workbench import prepare
+        result = prepare(self.file)
+        app = Path(result['editEntry'])
+        self.assertEqual(app.suffix, '.app')
+        self.assertTrue((app / 'Contents/Resources/launch.command').is_file())
+        for _ in range(2):
+            checked = subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], capture_output=True, text=True)
+            self.assertEqual(checked.returncode, 0, checked.stderr)
+            self.assertEqual(prepare(self.file)['editEntry'], str(app))
+        self.assertEqual(self.file.read_text(), SOURCE)
+
+    @unittest.skipUnless(sys.platform == 'darwin' and shutil.which('osacompile'), 'macOS app packaging')
+    def test_reprepare_removes_only_signature_incompatible_finder_metadata(self):
+        from prepare_workbench import prepare
+        app = Path(prepare(self.file)['editEntry'])
+        subprocess.run(['xattr', '-wx', 'com.apple.FinderInfo', '4150504c6170706c' + '00' * 24, str(app)], check=True)
+        subprocess.run(['xattr', '-w', 'org.example.workbench-test', 'preserve', str(app)], check=True)
+        self.assertIn('com.apple.FinderInfo', subprocess.check_output(['xattr', str(app)], text=True).splitlines())
+        prepare(self.file)
+        attributes = subprocess.check_output(['xattr', str(app)], text=True).splitlines()
+        self.assertNotIn('com.apple.FinderInfo', attributes)
+        self.assertEqual(subprocess.check_output(['xattr', '-p', 'org.example.workbench-test', str(app)], text=True).strip(), 'preserve')
+        checked = subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], capture_output=True, text=True)
+        self.assertEqual(checked.returncode, 0, checked.stderr)
 
     def test_reopen_reuses_helper_and_idle_helper_exits(self):
         state = service.launch(self.file, open_browser=False, idle_seconds=1.5)

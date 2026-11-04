@@ -16,6 +16,7 @@ function boot(html,cached,modulePath,options={}){
   w.fetch=()=>Promise.reject(new Error('Network disabled in verification'));
   w.XMLHttpRequest=class {open(){throw new Error('XHR disabled in isolated verification');}};
   w.navigator.sendBeacon=()=>false;
+  for(const [key,value] of Object.entries(options.storage||{}))w.localStorage.setItem(key,value);
   if(cached)w.localStorage.setItem(key,JSON.stringify(cached));
  }});
  const w=dom.window,d=w.document,$=s=>{const e=d.querySelector(s);assert.ok(e,'Missing '+s);return e;};

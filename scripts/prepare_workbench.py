@@ -54,6 +54,19 @@ def prepare(target, make_app=True):
         if not resource.parent.exists():
             raise ValueError('已有同名应用不属于工作台，未覆盖：' + str(app))
         write_owned(resource, launcher_script(target.name, app=True))
+        # osacompile signs the bundle before our bound launcher exists.
+        # Seal the final resources so Launch Services can open the local app.
+        # Finder metadata can be attached on Desktop/iCloud. Only remove the
+        # two attributes prohibited by codesign; preserve all security metadata.
+        for node in [app, *app.rglob('*')]:
+            attributes = subprocess.check_output(['xattr', str(node)], text=True).splitlines()
+            for attribute in ('com.apple.FinderInfo', 'com.apple.ResourceFork'):
+                if attribute in attributes:
+                    subprocess.run(['xattr', '-d', attribute, str(node)], check=True, capture_output=True, text=True)
+        subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', str(app)],
+                       check=True, capture_output=True, text=True)
+        subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)],
+                       check=True, capture_output=True, text=True)
         result['launcher'] = str(app)
     else:
         command = target.with_name(target.stem + '-打开工作台.command')
@@ -76,4 +89,6 @@ if __name__ == '__main__':
         main()
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         print(str(error), file=sys.stderr)
+        if isinstance(error, subprocess.CalledProcessError) and error.stderr:
+            print(error.stderr.strip(), file=sys.stderr)
         sys.exit(1)

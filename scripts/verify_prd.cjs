@@ -39,6 +39,17 @@ async function main(){
   assert.equal(r.d.querySelectorAll('[data-page][aria-current],.product-group.is-current').length,0);
   checks.push('three_plain_text_documents_default_empty_without_extra_fields_or_chapter_controls');
 
+  for(const [nav,panel,input] of [['#global-menu','#global-content-panel','#global-content-input'],['[data-prd-document="data"]','#requirement-panel','#data-requirements-input'],['[data-prd-document="tracking"]','#requirement-panel','#tracking-content-input'],['[data-product-global]','#product-global-panel','#product-global-input']]){
+   r.click(nav);const guide=r.$(panel+' .prd-writing-guide'),field=r.$(input);
+   assert.equal(guide.open,true);assert.equal(field.value,'');const before=JSON.stringify(r.state());
+   r.click(panel+' .prd-writing-guide summary');assert.equal(guide.open,false);assert.equal(field.value,'');assert.equal(JSON.stringify(r.state()),before);
+   r.click(panel+' .prd-writing-guide summary');assert.equal(guide.open,true);assert.equal(field.value,'');assert.equal(JSON.stringify(r.state()),before);
+  }
+  r.click('[data-page="channels"]');assert.ok(r.$('#notes-writing-guide .prd-writing-guide'));assert.equal(r.$('#notes-writing-guide').hidden,false);
+  assert.equal(r.$('#notes-writing-guide .prd-writing-guide').open,true);
+  r.click('#global-menu');assert.equal(r.$('#notes-writing-guide').hidden,true);
+  checks.push('writing_guidance_opens_by_default_and_never_changes_user_content');
+
   const texts={global:'# 需求背景\n由我填写\n<script>window.injected=true</script>',data:'上线后观察数据\n统计范围和时间由我填写\n| 不渲染成表格 |',tracking:'需要埋点时在这里写\n![不渲染图片](https://example.com/image.png)'};
   r.click('#global-menu');r.set('#global-content-input',texts.global);
   r.click('[data-prd-document="data"]');r.set('#data-requirements-input',texts.data);
@@ -64,6 +75,7 @@ async function main(){
   const shipped=await r.download('#export-html'),shippedSeed=parse(shipped.text);
   const stale=JSON.parse(JSON.stringify(shippedSeed.model));stale.globalContent=stale.dataRequirements=stale.trackingContent='过期缓存';
   const viewer=boot(shipped.text,stale);
+  assert.equal(viewer.d.querySelector('.prd-writing-guide'),null,'Writing references must not appear in a delivered viewer');
   for(const [id,value] of Object.entries(texts)){
    viewer.click(id==='global'?'#global-menu':'[data-prd-document="'+id+'"]');
    assert.equal(viewer.$(id==='global'?'#global-content-text':id==='data'?'#data-requirements-text':'#tracking-content-text').textContent,value);
