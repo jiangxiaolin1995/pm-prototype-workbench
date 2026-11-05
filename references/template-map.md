@@ -100,6 +100,6 @@ python3 <skill-dir>/scripts/init_prototype.py --title "项目" --config "/项目
 
 ## 本地编辑入口
 
-`prepare_workbench.py` 在实际 HTML 旁生成绑定入口，不改正文；`serve_workbench.py` 为单个文件提供本机保存。HTML 的 `localSaveConfig / beginHTMLSave / flushHTMLSave` 分别识别绑定配置、解释直接打开时的授权、提交保存。`writeHTMLSnapshot` 移除注入的 `workbench-local-save`，保证只读交付独立。
+`prepare_workbench.py` 默认启动或复用实际 HTML 的本机保存服务，返回编辑链接。HTML 的 `localSaveConfig / beginHTMLSave / flushHTMLSave` 分别识别绑定配置、提示离线状态、提交保存。`writeHTMLSnapshot` 移除注入的 `workbench-local-save`，保证只读交付独立。
 
 初始化与示例构建输出的 `editEntry` 是默认给用户打开的编辑入口；`file` 仅标识已绑定的工作 HTML。禁止用裸 HTML 链接代替自动保存入口，禁止增加手动选文件授权入口。

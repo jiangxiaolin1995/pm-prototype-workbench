@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add a portable, single-click local editing entry beside an existing work HTML."""
+"""Start or reuse autosave for an existing work HTML and return its local edit URL."""
 import argparse
 import hashlib
 import json
@@ -9,7 +9,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from serve_workbench import read_payload
+from serve_workbench import launch, read_payload
 
 
 def launcher_script(filename, app=False):
@@ -26,7 +26,16 @@ def write_owned(path, content):
     path.chmod(0o755)
 
 
-def prepare(target, make_app=True):
+def prepare(target, make_app=None):
+    """Open by URL by default. Explicit legacy launcher requests keep their file output."""
+    if make_app is not None:
+        return prepare_launcher(target, make_app)
+    state = launch(target, open_browser=False)
+    return {'file': state['file'], 'editEntry': state['url'], 'launcher': None,
+            'helper': str(Path(__file__).with_name('serve_workbench.py').resolve())}
+
+
+def prepare_launcher(target, make_app):
     target = Path(target).expanduser().resolve(strict=True)
     payload = read_payload(target.read_text(encoding='utf-8'))
     if payload.get('readOnly'):
@@ -79,15 +88,18 @@ def prepare(target, make_app=True):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('file', type=Path)
-    parser.add_argument('--no-app', action='store_true', help='Use a shell entry instead of a macOS app')
+    legacy = parser.add_mutually_exclusive_group()
+    legacy.add_argument('--app', dest='make_app', action='store_true', help='Explicitly create the legacy native launcher')
+    legacy.add_argument('--command', '--no-app', dest='make_app', action='store_false', help='Explicitly create the legacy shell launcher')
+    parser.set_defaults(make_app=None)
     args = parser.parse_args()
-    print(json.dumps(prepare(args.file, not args.no_app), ensure_ascii=False))
+    print(json.dumps(prepare(args.file, args.make_app), ensure_ascii=False))
 
 
 if __name__ == '__main__':
     try:
         main()
-    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
         print(str(error), file=sys.stderr)
         if isinstance(error, subprocess.CalledProcessError) and error.stderr:
             print(error.stderr.strip(), file=sys.stderr)

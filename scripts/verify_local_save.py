@@ -122,27 +122,62 @@ class LocalSaveTests(unittest.TestCase):
         self.assertEqual(self.file.read_text(), SOURCE)
         self.assertEqual(Path(result['helper']).read_bytes(), Path(service.__file__).read_bytes())
 
+    def test_default_generation_and_reopen_return_live_urls_without_launchers(self):
+        scripts = Path(__file__).resolve().parent
+
+        def run(script, *args):
+            result = subprocess.check_output([sys.executable, str(scripts / script), *args], text=True)
+            return json.loads(result)
+
+        for name, generator in [('new', ['init_prototype.py', '--title', '编辑链接']),
+                                ('example', ['build_example.py', 'h5'])]:
+            with self.subTest(name=name):
+                target = self.file.parent / name / '中文 工作文件.html'
+                try:
+                    entry = run(*generator, '--output', str(target))
+                    self.assertTrue(entry['editEntry'].startswith('http://127.0.0.1:'))
+                    self.assertIsNone(entry.get('launcher'))
+                    self.assertEqual(Path(entry['file']), target.resolve())
+                    visible = [p.name for p in target.parent.iterdir() if not p.name.startswith('.')]
+                    self.assertEqual(visible, [target.name])
+                    with urlopen(entry['editEntry'], timeout=3) as response:
+                        self.assertIn(b'id="workbench-local-save"', response.read())
+                    original = target.read_bytes()
+                    reopened = run('prepare_workbench.py', str(target))
+                    self.assertEqual(reopened['editEntry'], entry['editEntry'])
+                    self.assertEqual(target.read_bytes(), original)
+                finally:
+                    if target.is_file():
+                        directory, key = service.state_paths(target)
+                        state = service.read_state(directory / (key + '.server.json'))
+                        if service.live_state(state, target.resolve()):
+                            os.kill(state['pid'], signal.SIGTERM)
+                            deadline = time.monotonic() + 5
+                            while service.live_state(state, target.resolve()):
+                                self.assertLess(time.monotonic(), deadline, 'Test helper did not stop')
+                                time.sleep(0.05)
+
     @unittest.skipUnless(sys.platform == 'darwin' and shutil.which('osacompile'), 'macOS app packaging')
     def test_native_app_remains_valid_after_adding_launcher_and_repreparing(self):
         from prepare_workbench import prepare
-        result = prepare(self.file)
+        result = prepare(self.file, make_app=True)
         app = Path(result['editEntry'])
         self.assertEqual(app.suffix, '.app')
         self.assertTrue((app / 'Contents/Resources/launch.command').is_file())
         for _ in range(2):
             checked = subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], capture_output=True, text=True)
             self.assertEqual(checked.returncode, 0, checked.stderr)
-            self.assertEqual(prepare(self.file)['editEntry'], str(app))
+            self.assertEqual(prepare(self.file, make_app=True)['editEntry'], str(app))
         self.assertEqual(self.file.read_text(), SOURCE)
 
     @unittest.skipUnless(sys.platform == 'darwin' and shutil.which('osacompile'), 'macOS app packaging')
     def test_reprepare_removes_only_signature_incompatible_finder_metadata(self):
         from prepare_workbench import prepare
-        app = Path(prepare(self.file)['editEntry'])
+        app = Path(prepare(self.file, make_app=True)['editEntry'])
         subprocess.run(['xattr', '-wx', 'com.apple.FinderInfo', '4150504c6170706c' + '00' * 24, str(app)], check=True)
         subprocess.run(['xattr', '-w', 'org.example.workbench-test', 'preserve', str(app)], check=True)
         self.assertIn('com.apple.FinderInfo', subprocess.check_output(['xattr', str(app)], text=True).splitlines())
-        prepare(self.file)
+        prepare(self.file, make_app=True)
         attributes = subprocess.check_output(['xattr', str(app)], text=True).splitlines()
         self.assertNotIn('com.apple.FinderInfo', attributes)
         self.assertEqual(subprocess.check_output(['xattr', '-p', 'org.example.workbench-test', str(app)], text=True).strip(), 'preserve')

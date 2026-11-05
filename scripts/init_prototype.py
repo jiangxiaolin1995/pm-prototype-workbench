@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--config', type=Path, help='Project payload JSON with requirements, pages, navigation and model')
     parser.add_argument('--adapter', type=Path, help='Business adapter JavaScript, inlined into the single HTML')
     parser.add_argument('--style', type=Path, help='Business CSS to inline')
-    parser.add_argument('--html-only', action='store_true', help='Skip the local editor launcher for isolated HTML fixtures')
+    parser.add_argument('--html-only', action='store_true', help='Write an isolated HTML fixture without starting the local save service')
     args = parser.parse_args()
     title = args.title.strip()
     if not title or len(title) > 100:
@@ -65,12 +65,13 @@ def main():
         stream.write(source)
     entry = {} if args.html_only else prepare(target)
     print(json.dumps({'editEntry': entry.get('editEntry'), 'file': str(target), 'launcher': entry.get('launcher'), 'projectTitle': title, 'readOnly': False,
-                      'next': 'Use editEntry for everyday editing and automatic file saves. The file field is the bound storage target; do not ask the author to select it. Configure the requested pages and adapter; unspecified business text stays empty.'}, ensure_ascii=False))
+                      'next': ('Isolated HTML only. No save service was started.' if args.html_only else
+                               'Open editEntry in a browser to edit with autosave. To resume later, run prepare_workbench.py on the same file and use its returned URL.')}, ensure_ascii=False))
 
 
 if __name__ == '__main__':
     try:
         main()
-    except (OSError, ValueError) as error:
+    except (OSError, ValueError, RuntimeError) as error:
         print(str(error), file=sys.stderr)
         sys.exit(1)

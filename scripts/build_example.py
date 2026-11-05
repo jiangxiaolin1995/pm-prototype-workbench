@@ -10,7 +10,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('example',choices=['channel-review','h5'])
     parser.add_argument('--output',type=Path)
-    parser.add_argument('--html-only',action='store_true')
+    parser.add_argument('--html-only',action='store_true',help='Write an isolated example without starting the local save service')
     args=parser.parse_args()
     source=example_source(args.example)
     if args.output:

@@ -802,7 +802,7 @@ function updateSaveStatus(){
  const indicator=$('#file-save-indicator');if(indicator){indicator.textContent=status;indicator.title=status;indicator.dataset.state=fileSave.error?'error':dirty||!enabled?'pending':'saved';}
  const retry=$('#save-html');if(retry){retry.hidden=!fileSave.error;retry.disabled=fileSave.busy||fileSave.blocked;}
  const count=Object.values(model.drafts).filter(d=>d.dirty).length;
- el.textContent=status+'。'+(enabled?'填写后自动写入 HTML；刷新或换浏览器打开同一工作台可继续。':'此离线页面只保留浏览器备份；日常编辑使用已绑定文件的工作台入口。')+(count?'含 '+count+' 页说明草稿。':'')+(!cacheAvailable?'浏览器备份不可用。':'');
+ el.textContent=status+'。'+(enabled?'填写后自动写入 HTML，可在同一台电脑上换浏览器继续编辑。':'此页仅在浏览器内暂存。从本机编辑链接打开可自动写入 HTML。')+(count?'含 '+count+' 页说明草稿。':'')+(!cacheAvailable?'浏览器备份不可用。':'');
 }
 function scheduleFileSave(){
  if(readOnly||!fileSave.bridge||fileSave.blocked||!fileDirty())return;
@@ -822,7 +822,7 @@ async function flushHTMLSave(force=false){
  finally{fileSave.busy=false;updateSaveStatus();if(fileDirty()&&!fileSave.error)scheduleFileSave();}
 }
 function beginHTMLSave(){
- if(!fileSave.bridge){toast('当前离线页未写入文件；工作台编辑入口会自动保存，无需选择文件。');return;}
+ if(!fileSave.bridge){toast('当前仅在浏览器内暂存。请从本机编辑链接打开以自动保存。');return;}
  if(fileSave.blocked){toast(fileSave.error);return;}
  fileSave.error='';return flushHTMLSave(true);
 }
@@ -1098,7 +1098,7 @@ function renderAll(){
   $('#current-product').textContent=projectTitle;$('#current-platform').textContent='全局';$('#current-path').textContent='适用于所有需求、产品、端和页面';
   $('#page-title').textContent='全局描述';
   $('#sidebar-title').textContent='研发说明';$('#sidebar-description').textContent='这份内容由整个工作台共用。';$('#scope-name').textContent='所有需求 · 所有产品与端 · 所有页面';
-  $('#editor-slot').replaceChildren();$('#notes-slot').innerHTML='<div class="page-rule"><strong>全局描述</strong>'+(readOnly?'在中间查看完整正文。':'直接在中间填写，保存状态见顶部；下次从「打开工作台」入口继续编写。')+'</div>';
+  $('#editor-slot').replaceChildren();$('#notes-slot').innerHTML='<div class="page-rule"><strong>全局描述</strong>'+(readOnly?'在中间查看完整正文。':'直接在中间填写，保存状态见顶部。')+'</div>';
   renderDirectory();renderGlobalContent();paintPins();updateSaveStatus();return;
  }
  if(productGlobal){
