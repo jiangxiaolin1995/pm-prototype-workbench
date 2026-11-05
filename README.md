@@ -1,6 +1,6 @@
 # PRD 与三栏交互原型工作台
 
-给 Codex 使用的 `pm-prototype-workbench` Skill：新建交互原型、迭代已有工作文件，或保留原 HTML 的交互转换为三栏工作台。工作版双击启动入口即可填写并自动保存；完成后手动导出单个只读 HTML 交付。
+`pm-prototype-workbench` 可以按需求新建原型、按截图还原页面、迭代工作文件，也可以把已有 HTML 的交互带入三栏工作台。工作版双击启动入口即可填写并自动保存，完成后手动导出单个只读 HTML 交付。
 
 - 左侧：需求说明里的全局描述、上线后数据需求、埋点说明，以及产品下的全局说明与页面。
 - 中间：纯文字正文或业务原型。可按 100%、90%、80%、70%、60%、50%、自适应查看。
@@ -22,11 +22,14 @@
 
 ```text
 使用 $pm-prototype-workbench，按这些已确认需求做交互原型。
+使用 $pm-prototype-workbench，按这张截图还原。
 使用 $pm-prototype-workbench，修改这个工作 HTML，保留我已写的内容。
 使用 $pm-prototype-workbench，把这个 HTML 转为三栏工作台，保留原来的交互。
 ```
 
 独立做原型不要求先建完整 SOP 项目。由 `pm-product-sop` 调用时，接收同一推进记录和本次范围，返回产物、修改页面、验证结果与未决项，由 SOP 接续记录。
+
+直接发截图即可开始。中间按原图还原文字、图标、图片、控件和布局，这些元素都可以单独选中写说明。有明确的业务动作时一起告诉 Codex，例如“点选集打开第二张图”。交付时附原图与实际中间画面的同尺寸对照图，并指出仍看得见的差异。[截图还原流程](references/screenshot-to-html.md)
 
 ## 干净骨架与业务示例
 
@@ -90,7 +93,7 @@ node scripts/verify_workbench.cjs "/实际产物.html" --scenario "/业务场景
 
 ## 维护文档
 
-- [Skill 入口](SKILL.md)：三条路线、职责、授权和 SOP 交接。
+- [Skill 入口](SKILL.md) 汇总各条工作路线、职责、授权和 SOP 交接。
 - [交互约定](references/workbench-contract.md)：已确认的三栏、标注、比例、保存与交付行为。
 - [模板地图](references/template-map.md)：模型、业务适配器和维护源。
 - [已有 HTML 转换](references/existing-html.md)：保留源交互、数据、资源和复杂根。

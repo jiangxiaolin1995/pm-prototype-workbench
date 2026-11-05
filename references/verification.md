@@ -12,6 +12,8 @@ node <skill-dir>/scripts/verify_workbench.cjs "/实际产物.html" --jsdom "/已
 
 报告包含实际路径、文件 SHA-256、检查、跳过项和局限；不把 skipped 当成通过。运行时错误、目录错配、标注失败或实际导出失效都返回非零退出码。`verify_artifact_validator.cjs` 用独立业务 HTML 和故意损坏的文件检验该入口，不能通过仅检查模板来绕过。
 
+截图来源的页面还要从真实浏览器截取交付 HTML 的业务区域，逐张做同尺寸对照，并实际选元素填写说明。具体步骤见[截图还原与验收](screenshot-to-html.md)。
+
 ## 业务场景
 
 通用检查不推断业务规则。可给 `--scenario /场景.json`，操作的仍是目标文件自身控件：
@@ -52,6 +54,7 @@ actions 支持 click 或 selector/value/event；expect 支持 value、包含 tex
 | verify_revision.cjs | 同文件更新与浏览器编辑合并／冲突 |
 | verify_file_save.cjs | 真实 HTTP 与 HTML 自动写入、无缓存重开续写、服务失败、外部更新与多窗口保护、全流程不选文件 |
 | verify_init.py | 干净初始化、明确文字带入、不覆盖原文件 |
+| verify_screenshots.py | 对照图保留两张图的原始尺寸与顺序，尺寸不符时报错，保护输入文件 |
 | verify_artifact_validator.cjs | 通用验证入口的正例与损坏产物反例 |
 
 例如生成渠道 fixture 后交给旧的导出回归：
