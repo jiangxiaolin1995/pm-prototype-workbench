@@ -22,7 +22,7 @@ python3 <skill-dir>/scripts/init_prototype.py --title "项目" --product "产品
 python3 <skill-dir>/scripts/init_prototype.py --title "项目" --config "/项目/project.json" --adapter "/项目/business.js" --style "/项目/business.css" --output "/项目/output/prototypes/项目.html"
 ```
 
-初始化拒绝覆盖已有文件。配置中明确提供的正文、说明与草稿保留；最终 HTML 不依赖这些维护文件。只是创建骨架时，仍需实现本次需求才可交付。
+初始化拒绝覆盖已有文件。配置中原有的正文、说明与草稿保留；Codex 新生成配置时遵守 [内容来源](../SKILL.md#内容来源)，未明确要求编写说明则保持 `model.notes=[]`、`model.drafts={}`，不从业务配置生成说明或预填右侧展示的 `requirements[].scope` / `boundary`。示例中的说明只用于演示或回归，不复制到新项目。最终 HTML 不依赖这些维护文件。只是创建骨架时，仍需实现本次需求才可交付。
 
 ## 文件配置
 
@@ -61,6 +61,8 @@ python3 <skill-dir>/scripts/init_prototype.py --title "项目" --config "/项目
 | reset() / escape() / sceneLabel(id) | 可选，处理业务的重置、弹窗退出、状态名称 |
 
 默认适配器返回空 `#list-pane`，可用 `pages[id].html` 放静态业务内容；动态业务实现自己的 render/bind。参考 H5 适配器的输入、收藏、详情，但不把示例规则当成新需求。
+
+场景和演示条件按 [工作台约定](workbench-contract.md) 分开：`pages[id].states` / `scene()` / `changeScene()` 对应顶部当前页面的弹窗等展示场景；身份、签到天数、领取状态等已确认维度用业务自己的 `data` / `views` 字段保存，由原型下方的演示面板操作，不把各维度的所有组合铺成顶部 Tab。面板与实际产品控件共用同一份模型及规则，切页、定位和导出沿用原有状态保存；不向 `model.notes` 或草稿写入演示说明。仅在本次创建／调整相应页面时采用该布局，保留已有 HTML 的业务逻辑，不批量改动其他原型。
 
 外壳给当前根加 `wb-business-root`，只在拾取时使装饰子元素参与命中。稳定记录和复杂根见 [元素选择](element-targeting.md)。iframe/Shadow DOM 需逐个接事件与路径，不能只换 root 就宣称内部全部可选。
 
