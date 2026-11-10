@@ -1,6 +1,7 @@
 """Check that the visual comparison preserves the two input images at native size."""
 
 import subprocess
+import json
 import sys
 import tempfile
 import unittest
@@ -19,10 +20,10 @@ class ScreenshotComparisonTest(unittest.TestCase):
         self.output = self.folder / 'comparison.png'
         Image.new('RGB', (7, 5), 'red').save(self.reference)
 
-    def compare(self):
+    def compare(self, *extra):
         return subprocess.run(
             [sys.executable, str(Path(__file__).with_name('compare_screenshots.py')),
-             str(self.reference), str(self.rendered), '--output', str(self.output)],
+             str(self.reference), str(self.rendered), '--output', str(self.output), *map(str, extra)],
             capture_output=True, text=True,
         )
 
@@ -63,6 +64,62 @@ class ScreenshotComparisonTest(unittest.TestCase):
         before = self.reference.read_bytes()
         self.assertNotEqual(self.compare().returncode, 0)
         self.assertEqual(self.reference.read_bytes(), before)
+
+    def test_regions_find_local_error_and_keep_native_crops(self):
+        reference = Image.new('RGB', (7, 5), 'black')
+        reference.save(self.reference)
+        rendered = reference.copy()
+        for y in range(2):
+            for x in range(3):
+                rendered.putpixel((x, y), (30, 60, 90))
+        rendered.save(self.rendered)
+        regions = self.folder / 'regions.json'
+        regions.write_text(json.dumps([
+            {'name': 'changed', 'box': [0, 0, 3, 2]},
+            {'name': 'unchanged', 'box': [3, 0, 4, 5]},
+        ]))
+        details = self.folder / 'details'
+        result = self.compare('--regions', regions, '--details', details)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads((details / 'metrics.json').read_text())
+        self.assertEqual(report['size'], [7, 5])
+        self.assertAlmostEqual(report['overall']['mae'], 60 * 6 / 35, places=4)
+        self.assertEqual([r['mae'] for r in report['regions']], [60, 0])
+        with Image.open(details / report['regions'][0]['comparison']) as crop:
+            self.assertEqual(crop.size, (6, 2))
+            self.assertEqual(crop.crop((3, 0, 6, 2)).tobytes(), rendered.crop((0, 0, 3, 2)).tobytes())
+        with Image.open(details / 'difference.png') as diff:
+            self.assertEqual(diff.size, (7, 5))
+            self.assertNotEqual(diff.getpixel((0, 0)), diff.getpixel((6, 4)))
+
+    def test_invalid_regions_do_not_create_outputs(self):
+        Image.new('RGB', (7, 5), 'blue').save(self.rendered)
+        regions = self.folder / 'regions.json'
+        details = self.folder / 'details'
+        for box in [[-1, 0, 3, 2], [0, 0, 8, 2], [0, 0, 3, 0], [0.5, 0, 3, 2], [True, 0, 3, 2]]:
+            with self.subTest(box=box):
+                regions.write_text(json.dumps([{'name': 'bad', 'box': box}]))
+                self.assertNotEqual(self.compare('--regions', regions, '--details', details).returncode, 0)
+                self.assertFalse(self.output.exists())
+                self.assertFalse(details.exists())
+
+    def test_existing_detail_output_is_preserved_without_partial_pair(self):
+        Image.new('RGB', (7, 5), 'blue').save(self.rendered)
+        details = self.folder / 'details'
+        details.mkdir()
+        sentinel = details / 'metrics.json'
+        sentinel.write_text('previous comparison')
+        result = self.compare('--details', details)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(sentinel.read_text(), 'previous comparison')
+        self.assertFalse(self.output.exists())
+
+    def test_regions_require_detail_output(self):
+        Image.new('RGB', (7, 5), 'blue').save(self.rendered)
+        regions = self.folder / 'regions.json'
+        regions.write_text('[]')
+        self.assertNotEqual(self.compare('--regions', regions).returncode, 0)
+        self.assertFalse(self.output.exists())
 
 
 if __name__ == '__main__':

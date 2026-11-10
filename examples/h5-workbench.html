@@ -472,7 +472,7 @@ function prdWritingGuide(kind){
   tracking:[['对应需求','这个事件支持哪个数据观察目标，适用哪些产品、端和页面。'],['触发时机','何时上报，哪些条件不报，重复操作和失败如何区分。'],['事件与参数','填写已确认的事件名、参数含义、取值和必要标识；有隐私约束时说明。'],['核验方法','按什么操作验证事件、次数和参数正确；没有埋点可以留空。']],
   note:[['触发与结果','什么前提下，用户做什么，页面或数据发生什么变化。'],['规则与边界','默认值、校验、权限，以及相关的空数据、失败、重复操作或中断处理。'],['验收条件','写成可检查的场景、操作和预期结果；只写当前元素相关的内容。']]
  };
- return '<details class="prd-writing-guide" open><summary>填写参考</summary><dl>'+sections[kind].map(([title,text])=>'<dt>'+title+'</dt><dd>'+text+'</dd>').join('')+'</dl><p>按需要填写已确认内容；参考不会自动写入正文，未确定的规则留空或注明待确认。</p></details>';
+ return '<details class="prd-writing-guide"'+(kind==='note'?'':' open')+'><summary>填写参考</summary><dl>'+sections[kind].map(([title,text])=>'<dt>'+title+'</dt><dd>'+text+'</dd>').join('')+'</dl><p>按需要填写已确认内容；参考不会自动写入正文，未确定的规则留空或注明待确认。</p></details>';
 }
 function normalizeRequirementTexts(result){
  for(const key of ['globalContent','dataRequirements','trackingContent'])result[key]=typeof result[key]==='string'?result[key]:'';

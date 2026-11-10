@@ -46,9 +46,14 @@ async function main(){
    r.click(panel+' .prd-writing-guide summary');assert.equal(guide.open,true);assert.equal(field.value,'');assert.equal(JSON.stringify(r.state()),before);
   }
   r.click('[data-page="channels"]');assert.ok(r.$('#notes-writing-guide .prd-writing-guide'));assert.equal(r.$('#notes-writing-guide').hidden,false);
-  assert.equal(r.$('#notes-writing-guide .prd-writing-guide').open,true);
+  const noteGuide=r.$('#notes-writing-guide .prd-writing-guide');
+  assert.equal(noteGuide.open,false,'Only the right-side note reference starts collapsed');
+  const beforeNoteGuide=JSON.stringify(r.state());
+  r.click('#notes-writing-guide summary');assert.equal(noteGuide.open,true);
+  r.click('#notes-writing-guide summary');assert.equal(noteGuide.open,false);
+  assert.equal(JSON.stringify(r.state()),beforeNoteGuide,'Toggling note references must not edit content');
   r.click('#global-menu');assert.equal(r.$('#notes-writing-guide').hidden,true);
-  checks.push('writing_guidance_opens_by_default_and_never_changes_user_content');
+  checks.push('only_note_guidance_starts_collapsed_other_documents_open_and_content_unchanged');
 
   const texts={global:'# 需求背景\n由我填写\n<script>window.injected=true</script>',data:'上线后观察数据\n统计范围和时间由我填写\n| 不渲染成表格 |',tracking:'需要埋点时在这里写\n![不渲染图片](https://example.com/image.png)'};
   r.click('#global-menu');r.set('#global-content-input',texts.global);
