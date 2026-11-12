@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Product groups with second-level global/page menus; exports stay in memory.
+// Product documents and platform-grouped page menus; exports stay in memory.
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 async function main(){
  const args=process.argv.slice(2);let modulePath;
@@ -30,7 +30,12 @@ async function main(){
   const r=boot(html);
   assert.equal(r.$('#directory-items button').id,'global-menu');
   assert.equal(r.d.querySelectorAll('.product-group').length,2);
-  assert.equal(r.d.querySelectorAll('.product-group > .product-children > [data-page]').length,4);
+  assert.equal(r.d.querySelectorAll('.product-group > .product-children > .platform-group [data-page]').length,4);
+  assert.equal(r.d.querySelectorAll('.product-group > .product-children > [data-page]').length,0);
+  assert.equal(r.d.querySelectorAll('.product-group[data-product=a] .platform-group').length,2);
+  assert.equal(r.d.querySelectorAll('.product-group[data-product=b] .platform-group').length,1);
+  assert.deepEqual([...r.d.querySelectorAll('.product-group[data-product=a] .platform-heading strong')].map(el=>el.textContent),['CMS','前台']);
+  assert.equal(r.d.querySelector('[data-platform-global]'),null);
   assert.equal(r.d.querySelectorAll('.product-group > .product-children > [data-product-global]').length,2);
   assert.equal(r.d.querySelector('#page-tabs,[role=tab]'),null,'Navigation must stay on the left');
   assert.equal(r.$('.product-group[data-product=a] .product-children button').dataset.productGlobal,'a');
@@ -38,10 +43,11 @@ async function main(){
   assert.ok(r.$('[data-page=channels]').textContent.includes('CMS'));
   assert.equal(r.$('#sidebar-title').textContent,'研发说明');
   for(const e of r.d.querySelectorAll('#directory-items button'))assert.ok(r.d.getElementById(e.getAttribute('aria-controls')));
-  checks.push('products_have_second_level_global_and_page_menus_without_center_tabs');
+  checks.push('products_keep_one_global_document_and_group_pages_by_platform_without_center_tabs');
 
   const a='A 产品共用文字\n<标签> & </script><script>window.injected=true</script>',b='B 产品独立文字';
   r.click('[data-product-global=a]');assert.equal(r.$('#product-global-input').value,'');r.set('#product-global-input',a);
+  assert.equal(r.d.querySelectorAll('.platform-group.is-current').length,0,'A product document does not select one platform');
   assert.equal(r.$('#sidebar-title').textContent,'研发说明');assert.equal(r.$('.stage').hidden,true);
   r.click('[data-product-global=b]');assert.equal(r.$('#product-global-input').value,'');r.set('#product-global-input',b);
   r.click('[data-page=words]');assert.equal(r.$('#current-product').textContent,'A 产品');assert.equal(r.$('#current-platform').textContent,'前台');
@@ -77,6 +83,8 @@ async function main(){
   const exported=await r.exportHTML(),shipped=parse(exported),stale=JSON.parse(JSON.stringify(shipped.model));
   stale.productGlobalContent={a:'旧缓存',b:'旧缓存'};
   const viewer=boot(exported,stale);assert.equal(viewer.$('#product-global-text').textContent,a);assert.equal(viewer.w.injected,undefined);
+  assert.equal(viewer.d.querySelectorAll('.product-group[data-product=a] .platform-group').length,2);
+  assert.equal(viewer.d.querySelectorAll('[data-product-global=a]').length,1);
   assert.equal(viewer.d.querySelectorAll('#product-global-input,#global-content-input,#pick-note,#note-form,.note-controls,#export-html').length,0);
   viewer.click('[data-product-global=b]');assert.equal(viewer.$('#product-global-text').textContent,b);
   viewer.click('[data-page=comments]');assert.equal(viewer.$('#search-name').value,'B 产品输入');viewer.set('#search-name','查看者体验');

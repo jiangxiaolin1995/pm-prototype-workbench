@@ -24,19 +24,19 @@ async function main() {
   seed.projectTitle = '多产品归属验证';
   seed.navigation = {
     products: {a: {name: 'A 产品'}, b: {name: 'B 产品'}},
-    platforms: {cms: {name: 'CMS'}, front: {name: '前台'}},
+    platforms: {cms: {name: 'CMS端'}, client: {name: 'App端'}},
     pageScopes: {
       channels: {product: 'a', platform: 'cms'},
       tags: {product: 'a', platform: 'cms'},
       comments: {product: 'b', platform: 'cms'},
-      words: {product: 'a', platform: 'front'}
+      words: {product: 'a', platform: 'client'}
     }
   };
   seed.model.notes.forEach(note => note.requirement = 'channels');
   // Only the verification copy changes labels and grouping; business renderers stay intact.
   seed.requirements=[{id:'channels',name:'跨产品调整',code:'REQ-01',scope:'',boundary:''}];
   Object.assign(seed.pages.comments,{req:'channels',name:'渠道列表'});
-  Object.assign(seed.pages.words,{req:'channels',name:'首页'});
+  Object.assign(seed.pages.words,{req:'channels',name:'渠道列表'});
   const fixture = embed(template, seed);
   const runtimes = [], checks = [];
   function boot(html, cache) {
@@ -75,11 +75,18 @@ async function main() {
       assert.ok(runtime.$('#scope-name').textContent.includes(label), 'Right notes lose scope');
     }
     const button = runtime.$('[data-page="' + id + '"]');
+    const platform = button.closest('.platform-group');
+    assert.ok(platform, 'Page must be inside its platform group');
+    assert.equal(platform.dataset.platform, seed.navigation.pageScopes[id].platform);
+    assert.equal(platform.querySelector('.platform-heading strong').textContent, expected[1]);
+    assert.equal(platform.closest('.product-group').dataset.product, seed.navigation.pageScopes[id].product);
+    assert.equal(runtime.d.querySelectorAll('.platform-group.is-current').length,1);
+    assert.ok(platform.classList.contains('is-current'));
     assert.equal(button.getAttribute('aria-current'), 'page');
     for (const label of expected) assert.ok(button.getAttribute('aria-label').includes(label), 'Navigation accessible name is ambiguous');
     assert.equal(runtime.d.querySelectorAll('.product-group.is-current').length, 1);
   }
-  const expected = {channels:['A 产品','CMS','渠道列表'], tags:['A 产品','CMS','标签配置'], comments:['B 产品','CMS','渠道列表'], words:['A 产品','前台','首页']};
+  const expected = {channels:['A 产品','CMS端','渠道列表'], tags:['A 产品','CMS端','标签配置'], comments:['B 产品','CMS端','渠道列表'], words:['A 产品','App端','渠道列表']};
   try {
     const work = boot(fixture);
     assert.equal(work.d.querySelectorAll('.product-group').length, 2, 'One product must have one parent group across its surfaces');
@@ -102,10 +109,16 @@ async function main() {
     assert.equal(work.d.querySelector('#note-body'),null,'Another page must not inherit the note draft or selected position');
     work.click('#pick-note'); work.click('[data-anchor="filters"]'); work.set('#note-body', 'B 产品独立说明'); work.submit('#note-form');
     const bId = work.$('#locate-note').value;
+    work.click('[data-page="words"]');assert.equal(work.d.querySelector('#note-body'),null);
+    work.click('#pick-note');work.click('[data-anchor="filters"]');work.set('#note-body','A 产品 App 端未保存草稿');
     work.click('[data-page="channels"]'); assert.equal(work.$('#note-body').value, 'A 产品未保存草稿');
     assert.equal(work.d.querySelector('#note-' + bId), null, 'Another product note leaked into the page');
     work.submit('#note-form'); const aId = work.$('#locate-note').value;
     assert.notEqual(aId, bId);
+    work.click('[data-page="words"]');assert.equal(work.$('#note-body').value,'A 产品 App 端未保存草稿');
+    assert.equal(work.d.querySelector('#note-'+aId),null,'Same product, different platform must not share notes');
+    work.submit('#note-form');const appId=work.$('#locate-note').value;
+    assert.equal(new Set([aId,bId,appId]).size,3);
     checks.push('same_anchor_notes_and_drafts_are_independent');
 
     const exported = await work.exportHTML(), shipped = parse(exported);
@@ -115,6 +128,7 @@ async function main() {
     assert.deepEqual(shipped.model.notes.filter(n => n.id < seed.model.counters.note), seed.model.notes);
     assert.equal(shipped.model.notes.find(n => String(n.id) === aId).page, 'channels');
     assert.equal(shipped.model.notes.find(n => String(n.id) === bId).page, 'comments');
+    assert.equal(shipped.model.notes.find(n => String(n.id) === appId).page, 'words');
     const viewer = boot(exported);
     for (const [id, labels] of Object.entries(expected)) {
       checkScope(viewer, id, labels);
@@ -137,6 +151,13 @@ async function main() {
     assert.equal(legacy.$('#search-name').value, '旧缓存输入');
     assert.equal(legacy.$('#current-product').textContent, seed.projectTitle);
     assert.equal(legacy.$('#current-platform').textContent, '端未标明');
+    assert.equal(legacy.d.querySelectorAll('.platform-group').length,1);
+    assert.equal(legacy.$('.platform-heading strong').textContent,'端未标明');
+    const incompleteSeed=clone(seed);delete incompleteSeed.navigation.pageScopes.words.platform;
+    const incomplete=boot(embed(fixture,incompleteSeed));incomplete.click('[data-page="words"]');
+    assert.equal(incomplete.$('#current-product').textContent,'A 产品');
+    assert.equal(incomplete.$('#current-platform').textContent,'端未标明');
+    assert.equal(incomplete.$('[data-page="words"]').closest('.platform-group').dataset.platform,'unassigned-platform');
     checks.push('legacy_missing_scope_stays_usable_without_inventing_a_platform');
 
     const hostile = clone(seed);

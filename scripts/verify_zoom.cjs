@@ -27,14 +27,40 @@ async function main(){
  }
  try{
   const r=boot(html);
+  function pinHeight(selector,pixels){
+   const pin=r.$(selector),scale=Number(r.$('#prototype').dataset.canvasScale);
+   assert.ok(Math.abs(parseFloat(pin.style.height)*scale-pixels)<1e-6,'Pin screen height at '+scale);
+   return pin;
+  }
+  function readableNoteNumber(run,id,selected=false){
+   const style=run.w.getComputedStyle(run.$('#note-'+id+' .note-number'));
+   assert.ok(parseFloat(style.fontSize)>=(selected?13:12),'Readable note number font');
+   assert.ok(parseFloat(style.height)>=(selected?30:24),'Readable note number badge');
+   assert.ok(parseFloat(style.minWidth)>=(selected?30:24),'Note number does not collapse');
+  }
   assert.deepEqual([...r.$('#canvas-zoom').options].map(o=>o.value),['1','0.9','0.8','0.7','0.6','0.5','fit']);
   assert.equal(r.$('#canvas-zoom').value,'fit');assert.ok(r.$('#canvas-zoom option[value=fit]').textContent.startsWith('自适应'));
+  r.zoom('0.5');
+  const ownPin=pinHeight('#prototype .wb-pin[data-note-locate="3"]',24);
+  const childPin=pinHeight('#prototype .wb-child-pin[data-note-entry="create-channel"]',24);
+  readableNoteNumber(r,2);
+  assert.ok(parseFloat(ownPin.style.left)+parseFloat(ownPin.style.width)<parseFloat(childPin.style.left));
+  assert.ok(parseFloat(childPin.style.left)+parseFloat(childPin.style.width)<=390);
+  const badges=[...r.d.querySelectorAll('#prototype .wb-pin')].map(pin=>({
+   x:parseFloat(pin.style.left),y:parseFloat(pin.style.top),w:parseFloat(pin.style.width),h:parseFloat(pin.style.height)
+  }));
+  for(let i=0;i<badges.length;i++)for(let j=i+1;j<badges.length;j++){
+   const a=badges[i],b=badges[j];
+   assert.ok(a.x+a.w<=b.x||b.x+b.w<=a.x||a.y+a.h<=b.y||b.y+b.h<=a.y,'Nearby annotation numbers remain independently reachable');
+  }
   r.click('#new-channel');r.fill('#channel-name-input','正在填写的表单');r.click('#note-4 [data-note-edit]');r.fill('#note-body','未保存的说明草稿');
   const input=r.$('#channel-name-input'),editor=r.$('#note-body'),viewportHeightBefore=r.$('#prototype-viewport').style.height;
   for(const value of ['1','0.9','0.8','0.7','0.6','0.5']){
    r.zoom(value);assert.equal(r.$('#prototype-viewport').style.height,viewportHeightBefore);assert.equal(r.$('#prototype').style.zoom,value);assert.equal(r.$('#prototype').style.width,'390px');assert.equal(r.$('#prototype').style.height,'844px');
    assert.equal(r.$('#channel-name-input'),input);assert.equal(r.$('#note-body'),editor);assert.equal(input.value,'正在填写的表单');assert.equal(editor.value,'未保存的说明草稿');
    const frame=r.$('[data-note-frame="4"]');for(const [key,expected] of Object.entries({left:18,top:38,width:304,height:64}))assert.ok(Math.abs(parseFloat(frame.style[key])-expected)<1e-7,'Annotation '+key+' at '+value);
+   pinHeight('#prototype .wb-pin.focused[data-note-locate="4"]',30);
+   readableNoteNumber(r,4,true);
   }
   checks.push('zoom_preserves_business_and_draft_dom_with_correct_annotation_coordinates');
   r.click('#cancel-note');r.zoom('0.7');r.click('[data-page=tags]');assert.equal(r.$('#canvas-zoom').value,'fit');r.zoom('0.5');r.click('[data-page=channels]');assert.equal(r.$('#canvas-zoom').value,'0.7');assert.equal(r.$('#channel-name-input').value,'正在填写的表单');r.click('#global-menu');r.click('[data-page=channels]');assert.equal(r.$('#canvas-zoom').value,'0.7');
@@ -44,16 +70,21 @@ async function main(){
   Object.defineProperty(r.$('#prototype-viewport'),'clientHeight',{get:()=>viewportHeight,configurable:true});
   const viewportStyle=r.w.getComputedStyle(r.$('#prototype-viewport')),paddingX=parseFloat(viewportStyle.paddingLeft)+parseFloat(viewportStyle.paddingRight),paddingY=parseFloat(viewportStyle.paddingTop)+parseFloat(viewportStyle.paddingBottom);
   r.zoom('fit');const fit=Number(r.$('#prototype').style.zoom);assert.ok(fit>0&&fit<=1);assert.ok(390*fit<=viewportWidth-paddingX&&844*fit<=viewportHeight-paddingY);assert.equal(r.$('#canvas-zoom').value,'fit');
+  pinHeight('#prototype .wb-pin[data-note-locate="4"]',24);
   assert.equal(r.$('#channel-name-input').value,'正在填写的表单');checks.push('fit_preserves_ratio_and_fits_both_available_dimensions');
   const fitInput=r.$('#channel-name-input');viewportWidth=1600;viewportHeight=1800;r.zoom('fit');
   const enlarged=Number(r.$('#prototype').style.zoom);assert.ok(enlarged>2,'Large windows should enlarge the original canvas');assert.ok(390*enlarged<=viewportWidth-paddingX&&844*enlarged<=viewportHeight-paddingY);
+  pinHeight('#prototype .wb-pin[data-note-locate="4"]',24);
   const spareHeight=viewportHeight-paddingY-844*enlarged;assert.ok(spareHeight>=0&&spareHeight<1,'Fit should use the limiting dimension without overflow or spare height');
   assert.equal(r.$('#channel-name-input'),fitInput);assert.equal(r.$('#channel-name-input').value,'正在填写的表单');
   viewportWidth=600;viewportHeight=800;r.w.dispatchEvent(new r.w.Event('resize'));await new Promise(resolve=>r.w.requestAnimationFrame(resolve));
   const resized=Number(r.$('#prototype').style.zoom);assert.ok(resized<1&&resized<enlarged);assert.equal(r.$('#channel-name-input'),fitInput);
   checks.push('fit_enlarges_on_large_windows_and_recalculates_on_resize_without_rebuilding_business');
+  checks.push('annotation_number_and_nested_count_keep_screen_size_at_all_zoom_levels');
+  checks.push('right_note_numbers_remain_readable_and_selected_number_is_emphasized');
   r.zoom('0.5');const exported=await r.export(),payload=parse(exported);assert.equal(payload.model.views.channels.canvasZoom,'0.5');
   const viewer=boot(exported);assert.equal(viewer.$('#canvas-zoom').value,'0.5');viewer.zoom('0.7');assert.equal(viewer.$('#prototype').style.zoom,'0.7');assert.equal(viewer.d.querySelector('#pick-note,#export-html,#note-form'),null);assert.equal(viewer.$('#channel-name-input').value,'正在填写的表单');
+  readableNoteNumber(viewer,4);viewer.click('#note-4 [data-note-locate]');readableNoteNumber(viewer,4,true);
   checks.push('actual_readonly_export_keeps_zoom_controls_and_business_without_authoring');
   const legacy=parse(html).model;legacy.views.channels.canvasZoom='invalid';const old=boot(html,legacy);assert.equal(old.$('#canvas-zoom').value,'fit');
   for(const value of ['1','0.9','0.8','0.7','0.6','0.5','fit']){legacy.views.channels.canvasZoom=value;const saved=boot(html,legacy);assert.equal(saved.$('#canvas-zoom').value,value);}
